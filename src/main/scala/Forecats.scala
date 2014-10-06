@@ -20,7 +20,7 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
-    weatherRequest ~ 
+    //weatherRequest ~ 
     catRequest ~
     frontEndRoutes
   }

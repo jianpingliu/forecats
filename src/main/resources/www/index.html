@@ -2,50 +2,44 @@
 <html>
 <head>
 
-  <title>Forecats | coming soon</title>
-  <meta name='author' content='David Cochran'>
-  <meta name='description' content='Weather and cat gifs.'>
+  <title>Forecats</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='refresh' content='5; url=http://forecast.io'>
-  <style type='text/css'>*{padding:0;margin:0}.container{max-width:550px;margin:3em auto}#cats img,#cats video{width:100%;height:auto}#fade{-webkit-transition:opacity 250ms linear;-moz-transition:opacity 250ms linear;-o-transition:opacity 250ms linear;transition:opacity 250ms linear}.hidden{opacity:0}footer,header{font-family:'Avenir Next Condensed','Helvetica Neue',Helvetica,Arial,sans-serif}header{font-size:3em}footer{text-align:right;font-size:2em}@media screen and (min-width:640px){header{font-size:4em}footer{font-size:3em}}</style>
-  <script src='//logitank.net/analogue.js'></script>
+  <link rel='stylesheet' type='text/css' href='style.css'>
 
 </head>
 <body>
-
-  <div class='container'>
-    <header>Forecats</header>
-    <div id='cats'>
-      <video src='http://media.giphy.com/media/CAT_ID/giphy.mp4' 
-        type='video/mp4'
-        autoplay='autoplay' 
-        loop='loop'>          
-      </video>
+  
+  <div class='main'>
+    <div class='inset container header'>
+      <header class='text-medium hilight'>Forecats</header>
     </div>
-    <footer class='hidden' id='fade'>coming soon</footer>
+    <div class='container cat-container' id='catbox'>
+      <video autoplay='autoplay' loop='loop' type='video/mp4' src='http://media.giphy.com/media/Uss873K2iyZSE/giphy.mp4'></video>
+    </div>
+    <div class='inset container'>
+      <div class='table text-small search'>
+        <input class='table-cell tc-100' id='query' placeholder='Enter a location'>
+        <div class='table-cell tc-1 hilight' id='submit'>submit</div>
+      </div>
+    </div>
+    <div class='container weather-container hidden' id='weatherbox'>
+      <div class='weather-details'>
+        <div class='inline'>
+          <div class='text-large'>
+            <span class='icon' id='icon'></span>
+            <span class='temperature'></span>
+          </div>
+          <ul class='text-small text-left list-blank'>
+            <li>It's <span id='summary'></span></li>
+            <li>Feels like <span id='apparentTemperature'></span></li>
+            <li>High <span id='temperatureMax'></span>, Low <span id='temperatureMin'></span></li>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <script type='text/javascript'>
-  (function() {
-    var video = document.createElement('video'),
-        canPlay = !!video.canPlayType && (video.canPlayType('video/mp4') != ''),
-        touch = 'ontouchstart' in window || !!(navigator.msMaxTouchPoints),
-        useGif = touch || !canPlay;
-    
-    if(useGif) {
-      var cats = document.getElementById('cats'),
-          img = document.createElement('img');
-
-      img.src = 'http://media.giphy.com/media/CAT_ID/giphy.gif';
-      while(cats.firstChild) cats.removeChild(cats.firstChild);
-      cats.appendChild(img);
-    }
-
-    setTimeout(function() {
-      document.getElementById('fade').className = '';
-    }, 1250);
-  }());
-  </script>
+  
+  <script type='text/javascript' src='forecats.js'></script>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 package io.forecats
 
 import akka.actor.{Actor, ActorSystem}
+import argonaut._, Argonaut._
 import com.typesafe.config.Config
 import spray.routing._
 import spray.httpx.encoding._
@@ -20,8 +21,8 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
-    //weatherRequest ~ 
-    catRequest ~
+    weatherRequest ~
+    //catRequest ~
     frontEndRoutes
   }
 }
@@ -55,7 +56,7 @@ trait ForecatsService extends HttpService {
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lon) =>
       onSuccess(fromCoordinatesLookup(lat, lon)) { response =>
         respondWithMediaType(JSON) {
-          complete(response.toJson.toString)
+          complete(response.asJson.toString)
         }
       }
     }

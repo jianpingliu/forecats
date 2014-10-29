@@ -15,9 +15,8 @@ libraryDependencies ++= {
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "io.spray"            %%  "spray-can"     % sprayV,
     "io.spray"            %%  "spray-client"  % sprayV,
-    "io.spray"            %%  "spray-json"    % "1.3.0",
     "io.spray"            %%  "spray-routing" % sprayV,
-    "net.virtual-void"    %%  "json-lenses"   % "0.5.4",
+    "io.argonaut"         %%  "argonaut"      % "6.0.4",
     "net.debasishg"       %%  "redisclient"   % "2.13"
   )
 }

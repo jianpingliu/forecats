@@ -13,9 +13,7 @@
     <div class='inset container header'>
       <header class='text-medium hilight'>Forecats</header>
     </div>
-    <div class='container cat-container' id='catbox'>
-      <video autoplay='autoplay' loop='loop' type='video/mp4' src='http://media.giphy.com/media/Uss873K2iyZSE/giphy.mp4'></video>
-    </div>
+    <div class='container cat-container' id='catbox'></div>
     <div class='inset container'>
       <div class='table text-small search'>
         <input class='table-cell tc-100' id='query' placeholder='Enter a location'>
@@ -32,7 +30,8 @@
           <ul class='text-small text-left list-blank'>
             <li>It's <span id='summary'></span></li>
             <li>Feels like <span id='apparentTemperature'></span></li>
-            <li>High <span id='temperatureMax'></span>, Low <span id='temperatureMin'></span></li>
+            <li>High <span id='temperatureMax'></span></li>
+            <li>Low <span id='temperatureMin'></span></li>
           </div>
         </div>
       </div>
@@ -40,6 +39,25 @@
   </div>
   
   <script type='text/javascript' src='forecats.js'></script>
+  <script type='text/javascript'>
+    var features = {
+      geolocation: 'geolocation' in navigator,
+      touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints),
+      storage: (function() {
+        try {
+          sessionStorage.setItem('tmp', 'forecats');
+          sessionStorage.removeItem('tmp');
+          return true;
+        }
+        catch(e) { return false; }
+      })(),
+      video: (function() {
+        var elem = document.createElement('video');
+        return !!elem.canPlayType && (elem.canPlayType('video/mp4') != '');
+      })()
+    },
+    forecats = new Forecats(features, 'CAT_ID');
+  </script>
 
 </body>
 </html>

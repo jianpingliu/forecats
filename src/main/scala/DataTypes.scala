@@ -23,7 +23,7 @@ object DataTypes {
       apparentTemperature <- (c --\ "currently" --\ "apparentTemperature").as[Int]
       temperatureMin <- ((c --\ "daily" --\ "data" =\ 0) --\ "temperatureMin").as[Int]
       temperatureMax <- ((c --\ "daily" --\ "data" =\ 0) --\ "temperatureMax").as[Int]
-    } yield Forecast(summary, icon, temperature, apparentTemperature, temperatureMin, temperatureMax)
+    } yield Forecast(summary.toLowerCase, icon, temperature, apparentTemperature, temperatureMin, temperatureMax)
   )
 
   implicit def forecastEncodeJson = EncodeJson[Forecast](

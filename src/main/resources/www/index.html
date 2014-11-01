@@ -4,59 +4,61 @@
 
   <title>Forecats</title>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <link rel='stylesheet' type='text/css' href='style.css'>
+  <!-- TODO: meta tags -->
+  <link rel='stylesheet' type='text/css' href='css/style.css'>
 
 </head>
-<body>
+<body class='main hidden'>
   
-  <div class='main'>
-    <div class='inset container header'>
-      <header class='text-medium hilight'>Forecats</header>
+  <div class='inset container header'>
+    <header class='text-medium bright'>Forecats</header>
+  </div>
+
+  <div class='container cat-container' id='catbox'></div>
+
+  <div class='inset container'>
+    <div class='table text-small search-container' id='searchbox'>
+      <input class='table-cell tc-100' id='query' onclick='this.select()' placeholder='Enter a location'>
+      <div class='table-cell tc-1 cursor-pointer bright' id='submit'>submit</div>
     </div>
-    <div class='container cat-container' id='catbox'></div>
-    <div class='inset container'>
-      <div class='table text-small search'>
-        <input class='table-cell tc-100' id='query' placeholder='Enter a location'>
-        <div class='table-cell tc-1 hilight' id='submit'>submit</div>
+  </div>
+
+  <div class='narrow container' id='weatherbox'>
+    <div class='text-large table text-center'>
+      <div class='table-cell tc-50'>
+        <canvas class='icon pull-middle' id='icon' width=100 height=100></canvas>
+      </div>
+      <div class='table-cell tc-50'>
+        <span class='pull-middle' id='temperature'></span>
       </div>
     </div>
-    <div class='container weather-container hidden' id='weatherbox'>
-      <div class='weather-details'>
-        <div class='inline'>
-          <div class='text-large'>
-            <span class='icon' id='icon'></span>
-            <span class='temperature'></span>
-          </div>
-          <ul class='text-small text-left list-blank'>
-            <li>It's <span id='summary'></span></li>
-            <li>Feels like <span id='apparentTemperature'></span></li>
-            <li>High <span id='temperatureMax'></span></li>
-            <li>Low <span id='temperatureMin'></span></li>
-          </div>
-        </div>
+    <div class='text-small table text-center'>
+      <div class='table-cell pull-top tc-50'>
+        <span id='summary'></span>
+      </div>
+      <div class='table-cell pull-top tc-50'>
+        <p>Feels like <span id='apparentTemperature'></span></p>
+        <p>High <span id='temperatureMax'></span></p>
+        <p>Low <span id='temperatureMin'></span></p>
       </div>
     </div>
   </div>
+
+  <div class='container footer text-tiny text-center'>
+    powered by <a href='http://giphy.com' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' id='forecastLink'>Forecast</a>
+  </div>
   
-  <script type='text/javascript' src='forecats.js'></script>
+  <!-- serving static assets with lighttpd --> 
+  <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC8ZDYfUJBymP5eqaInk8RXI1xGz8HvDKs'></script>
+  <script type='text/javascript' src='js/skycons.js'></script>
+  <script type='text/javascript' src='js/forecats.js'></script>
   <script type='text/javascript'>
-    var features = {
-      geolocation: 'geolocation' in navigator,
-      touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints),
-      storage: (function() {
-        try {
-          sessionStorage.setItem('tmp', 'forecats');
-          sessionStorage.removeItem('tmp');
-          return true;
-        }
-        catch(e) { return false; }
-      })(),
-      video: (function() {
-        var elem = document.createElement('video');
-        return !!elem.canPlayType && (elem.canPlayType('video/mp4') != '');
-      })()
-    },
-    forecats = new Forecats(features, 'CAT_ID');
+    var forecats = new Forecats();
+    forecats.initialize('CAT_ID');
+
+    setTimeout(function() {
+      document.body.classList.remove('hidden');
+    }, 333);
   </script>
 
 </body>

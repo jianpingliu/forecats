@@ -4,35 +4,31 @@ import spray.http.HttpResponse
 import spray.httpx.unmarshalling.{FromResponseUnmarshaller, MalformedContent}
 import argonaut._, Argonaut._
 
-object DataTypes {
+object DataTypes extends WeatherTypes {
 
   case class Forecast(
-    summary: String,
-    icon: String,
-    temperature: Int,
-    apparentTemperature: Int,
-    temperatureMin: Int,
-    temperatureMax: Int
+    currently: CurrentWeather,
+    hourly: List[HourlyWeather],
+    daily: List[DailyWeather]
   )
 
-  implicit def forecastDecodeJson = DecodeJson[Forecast](c =>
+  implicit def currentWeatherCodec = casecodec4(CurrentWeather.apply, CurrentWeather.unapply)("icon", "summary", "temperature", "apparentTemperature")
+  implicit def dailyWeatherCodec = casecodec5(DailyWeather.apply, DailyWeather.unapply)("time", "icon", "summary", "temperatureMin", "temperatureMax")
+  implicit def hourlyWeatherCodec = casecodec4(HourlyWeather.apply, HourlyWeather.unapply)("time", "icon", "summary", "temperature")
+
+  implicit def forecastDecoder = DecodeJson[Forecast](c => {
     for {
-      summary <- (c --\ "currently" --\ "summary").as[String]
-      icon <- (c --\ "currently" --\ "icon").as[String]
-      temperature <- (c --\ "currently" --\ "temperature").as[Int]
-      apparentTemperature <- (c --\ "currently" --\ "apparentTemperature").as[Int]
-      temperatureMin <- ((c --\ "daily" --\ "data" =\ 0) --\ "temperatureMin").as[Int]
-      temperatureMax <- ((c --\ "daily" --\ "data" =\ 0) --\ "temperatureMax").as[Int]
-    } yield Forecast(summary.toLowerCase, icon, temperature, apparentTemperature, temperatureMin, temperatureMax)
-  )
+      currently <- (c --\ "currently").as[CurrentWeather]
+      // TODO: only grab 4 hourly/daily weathers. 
+      hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]
+      daily <- (c --\ "daily" --\ "data").as[List[DailyWeather]]
+    } yield Forecast(currently, hourly, daily)
+  })
 
-  implicit def forecastEncodeJson = EncodeJson[Forecast](
-    (f: Forecast) => ("summary" := f.summary)
-      ->: ("icon" := f.icon)
-      ->: ("temperature" := f.temperature)
-      ->: ("apparentTemperature" := f.apparentTemperature)
-      ->: ("temperatureMin" := f.temperatureMin)
-      ->: ("temperatureMax" := f.temperatureMax)
+  implicit def forecastEncoder = EncodeJson[Forecast](
+    (f: Forecast) => ("currently" := f.currently)
+      ->: ("hourly" := f.hourly)
+      ->: ("daily" := f.daily)
       ->: jEmptyObject
   )
 
@@ -44,4 +40,29 @@ object DataTypes {
       }
     }
   }
+}
+
+
+trait WeatherTypes {
+  case class CurrentWeather(
+    icon: String,
+    summary: String,
+    temperature: Int,
+    apparentTemperature: Int
+  )
+
+  case class HourlyWeather(
+    time: Long,
+    icon: String,
+    summary: String,
+    temperature: Int
+  )
+
+  case class DailyWeather(
+    time: Long,
+    icon: String,
+    summary: String,
+    temperatureMin: Int,
+    temperatureMax: Int
+  )
 }

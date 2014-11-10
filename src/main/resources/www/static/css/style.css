@@ -2,32 +2,37 @@
   margin: 0;
 }
 .container {
-  font-family: 'Avenir Next Condensed', sans-serif;
+  font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
   color: #0F0706;
   max-width: 500px;
   margin: 0 auto;
 }
-.cat-container {
-  padding: 0;
+.header,
+.footer {
+  margin-top: 5%;
 }
-.cat-container video,
-.cat-container img {
+.header {
+  padding: 0 1em;
+}
+.line-height {
+  line-height: 1;
+}
+#catbox video,
+#catbox img {
   width: 100%;
   height: auto;
 }
-.weather-container {
-  -webkit-transition: opacity 250ms linear;
-  -ms-transition: opacity 250ms linear;
-  transition: opacity 250ms linear;
-}
-.hidden {
-  opacity: 0;
+
+#giphyLink,
+#forecastLink {
+  text-decoration: none;
 }
 
-.text-tiny    { font-size:     1em; }
-.text-small   { font-size: 1.337em; }
-.text-medium  { font-size:     4em; }
-.text-large   { font-size:   5.0em; }
+.references { font-size: 1em; }
+.text-sm { font-size:  1.5em; }
+.text-md { font-size:    5em; }
+.text-lg { font-size:    5em; }
+
 .text-center  { text-align: center; }
 .text-left    { text-align:   left; }
 .text-right   { text-align:  right; }
@@ -41,7 +46,7 @@
   display: table-cell;
   vertical-align: bottom;
 }
-.tc-100 { width: 95%; }
+.tc-100 { width: 96%; }
 .tc-50 { width: 50%; padding: 2%; }
 .tc-1 { width: 1%; }
 
@@ -51,18 +56,15 @@
 .pull-middle {
   vertical-align: middle;
 }
+.inline {
+  display: inline-block;
+}
 .inset {
   padding: 1em;
   box-sizing: border-box;
 }
-.header {
-  padding: 0 1em;
-}
-.footer {
-  margin: 3em auto 1em auto;
-}
 .narrow {
-  padding: 0 1em;
+  padding: 0 2em;
   box-sizing: border-box;
 }
 .list-blank {
@@ -71,42 +73,47 @@
 .offset-left {
   margin-left: 20%;
 }
+
+.hidden {
+  display: none;
+}
+
 #query {
   font: inherit;
   background-color: rgba(0,0,0,0);
-  border: 0; outline: 0;
+  border: 0;
+  outline: 0;
   text-overflow: ellipsis;
 }
+
+.search-container {
+  border-radius: 2em;
+  padding: 0 0.5em;
+  border: 2.5pt solid #0F0706;
+}
+.search-container .table-cell {
+  padding: 8px 6px;
+}
+
+#giphyLink,
+#forecastLink,
+.bright {
+  color: #e74c3c
+}
+
 .cursor-pointer {
   cursor: pointer;
 }
-.bright {
-  color: #F62459;
-}
-.search-container {
-  border: 2.5pt solid #0F0706;
-  border-radius: 2em;
-  padding: 0 0.5em;
-}
-.search-container .table-cell {
-  padding: 6px 12px;
-}
 
 @media screen and (min-width: 497px) {
-  
-  .header {
-    margin-top: 2em;
-  }
+  .header,
   .footer {
-    margin-top: 5em auto 1em auto;
+    margin-top: 5%;
   }
-  .text-small {
-    font-size: 1.65em;
-  }
-  .text-tiny {
-    font-size: 1.15em;
+  .header {
+    padding: 0;
   }
   .narrow {
-    padding: 0 4em;
+    padding: 0 5em;
   }
 }

@@ -22,8 +22,8 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
 
   def receive = runRoute {
     weatherRequest ~
-    //catRequest ~
-    frontEndRoutes
+    catRequest
+    //frontEndRoutes
   }
 }
 

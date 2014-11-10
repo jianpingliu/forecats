@@ -29,7 +29,6 @@ function Forecats() {
 
       // forecast weather requests require latitude/longitude
       weatherFromCoordinates = function(coords, errorCallback) {
-        console.log(coords);
         var query = [coords.lat, coords.lng].join(','),
             cached = possiblyCached(query);
 
@@ -52,6 +51,8 @@ function Forecats() {
           http.addEventListener('load', handler);
           http.open('get', '/weather/' + query);
           http.send();
+
+          $('weatherbox').classList.add('hidden');
         }
       },
       // getting weather from a search query requires getting
@@ -60,44 +61,42 @@ function Forecats() {
       weatherFromQuery = function(query) {
         var g = new google.maps.Geocoder(),
             address = { address: query },
-            buildLocation = function(components) {
-              var types = ["locality", "administrative_area_level_1", "country"],
-                  loc = [];
-
-              for(var i=0; i<components.length; i++) {
-                for(var j=0; j<components[i].types.length; j++)
-                  if(types.indexOf(components[i].types[j]) >= 0) {
-                    loc.push(components[i].short_name);
-                    break;
-                  }
-              }
-
-              return loc.join(', ');
-            },
             handler = function(xs) {
-              var x = xs[0],
-                  coords = {
-                    lat: round(x.geometry.location.lat()),
-                    lng: round(x.geometry.location.lng())
-                  },
-                  loc = buildLocation(x.address_components);
+              if(xs.length) {
+                var x = xs[0],
+                    coords = {
+                      lat: round(x.geometry.location.lat()),
+                      lng: round(x.geometry.location.lng())
+                    };
 
-              weatherFromCoordinates(coords);
-              //displayLocation(x.formatted_address);
-              displayLocation(loc);
+                weatherFromCoordinates(coords);
+                displayLocation(x.formatted_address);
+                randomCatQuery();
+              }
+              else invalidQueryError(query); 
             };
 
         g.geocode(address, handler);
       },
+
+
+      randomCatQuery = function() {
+        var http = new XMLHttpRequest(),
+            handler = function() {
+              displayCat(http.response);
+            };
+
+        http.addEventListener('load', handler);
+        http.open('GET', '/cats/random');
+        http.send();
+      },
       
       locationFromCoordinates = function(coords) {
-        console.log("getting location from coordinates:", coords);
         var query = [coords.lat, coords.lng].join(','),
             cached = possiblyCached(query);
 
         if(cached && 'l' in cached) displayLocation(cached.l);
         else {
-          console.log(coords);
           var g = new google.maps.Geocoder(),
               latLng = new google.maps.LatLng(coords.lat, coords.lng),
               handler = function(xs) {
@@ -113,18 +112,16 @@ function Forecats() {
       
       skycons = new Skycons({ color: "#0F0706", resizeClear: true }),
       displayWeather = function(weather) {
+        $('summary').textContent = weather.currently.summary;
+        $('temperature').textContent = weather.currently.temperature;
+        $('feelsLike').textContent = weather.currently.apparentTemperature;
         
-        //$('icon').className = ['icon', weather.icon].join(' ');
-        skycons.set('icon', weather.icon);
+        skycons.add('icon', weather.currently.icon);
         skycons.play();
 
-        $('summary').innerText = weather.summary;
-        $('temperature').innerText = weather.temperature;
-        $('apparentTemperature').innerText = weather.apparentTemperature;
-        $('temperatureMax').innerText = weather.temperatureMax;
-        $('temperatureMin').innerText = weather.temperatureMin;
+        $('high').textContent = weather.daily[0].temperatureMax;
+        $('low').textContent = weather.daily[0].temperatureMin;
 
-        // and finally...
         $('weatherbox').classList.remove('hidden');
       },
       displayCat = (function() {
@@ -154,11 +151,16 @@ function Forecats() {
       }()),
       displayLocation = function(l) {
         $('query').value = l;
-        $('searchbox').classList.remove('active');
+      },
+      invalidQueryError = function(query) {
+        $('badquerybox').classList.remove('hidden');
+        $('badquery').textContent = query;
+        $('weatherbox').classList.add('hidden');
       };
 
   return {
-    initialize: function(catId) {
+    initialize: function() {
+      randomCatQuery();
 
       // to deal with async google maps loading
       var google = google || {};
@@ -181,11 +183,11 @@ function Forecats() {
       (function searchSetup() {
         var searchHandler = function() {
               var query = $('query').value;
-
-              $('weatherbox').classList.add('hidden');
               google.cmd.push(function() {
                 weatherFromQuery(query);
               });
+
+              $('badquerybox').classList.add('hidden');
             },
             keypressHandler = function(evt) {
               if(evt.keyCode == 13) searchHandler(); 
@@ -217,6 +219,7 @@ function Forecats() {
         // by navigator.geolocation.getCurrentPosition
         else if(features.geolocation) {
           var cached = possiblyCached('geo');
+          
           if(cached) {
             weatherFromCoordinates(cached);
             google.cmd.push(function() {
@@ -224,27 +227,27 @@ function Forecats() {
             });
           }
           else {
-          console.log('geolocating');
-          navigator.geolocation.getCurrentPosition(
-            function(posn) {
-              var coords = {
-                lat: round(posn.coords.latitude),
-                lng: round(posn.coords.longitude)
-              };
-              
-              weatherFromCoordinates(coords);
-              google.cmd.push(function() {
-                locationFromCoordinates(coords);
-              });
-              possiblyCache('geo', coords);
-            },
-            null,
-            { timeout: 3000 });
+            navigator.geolocation.getCurrentPosition(
+              function(posn) {
+                var coords = {
+                  lat: round(posn.coords.latitude),
+                  lng: round(posn.coords.longitude)
+                };
+                
+                weatherFromCoordinates(coords);
+                possiblyCache('geo', coords);
+                google.cmd.push(function() {
+                  locationFromCoordinates(coords);
+                });
+              },
+              function(evt) {
+                console.log("geolocation failed:", evt); 
+              },
+              { timeout: 5000 }
+            );
           }
         }
       }());
-
-      displayCat(catId);
     }
   };
 }

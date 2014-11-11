@@ -2,49 +2,71 @@
 <html>
 <head>
 
-  <title>Forecats | coming soon</title>
+  <title>Forecats</title>
   <meta name='author' content='David Cochran'>
-  <meta name='description' content='Weather and cat gifs.'>
+  <meta name='description' content='Weather and cat GIFs'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <meta http-equiv='refresh' content='5; url=http://forecast.io'>
-  <style type='text/css'>*{padding:0;margin:0}.container{max-width:550px;margin:3em auto}#cats img,#cats video{width:100%;height:auto}#fade{-webkit-transition:opacity 250ms linear;-moz-transition:opacity 250ms linear;-o-transition:opacity 250ms linear;transition:opacity 250ms linear}.hidden{opacity:0}footer,header{font-family:'Avenir Next Condensed','Helvetica Neue',Helvetica,Arial,sans-serif}header{font-size:3em}footer{text-align:right;font-size:2em}@media screen and (min-width:640px){header{font-size:4em}footer{font-size:3em}}</style>
-  <script src='//logitank.net/analogue.js'></script>
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css'>
+  <link rel='stylesheet' type='text/css' href='static/css/style.css'>
 
 </head>
 <body>
-
-  <div class='container'>
-    <header>Forecats</header>
-    <div id='cats'>
-      <video src='http://media.giphy.com/media/CAT_ID/giphy.mp4' 
-        type='video/mp4'
-        autoplay='autoplay' 
-        loop='loop'>          
-      </video>
-    </div>
-    <footer class='hidden' id='fade'>coming soon</footer>
+  
+  <div class='container header line-height'>
+    <span class='text-md bright'>Forecats</span>
+    <span class='text-tiny hidden' id='poweredBy'>is powered by <a href='http://giphy.com' class='references' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' class='references' id='forecastLink'>Forecast</a></small>
   </div>
 
-  <script type='text/javascript'>
-  (function() {
-    var video = document.createElement('video'),
-        canPlay = !!video.canPlayType && (video.canPlayType('video/mp4') != ''),
-        touch = 'ontouchstart' in window || !!(navigator.msMaxTouchPoints),
-        useGif = touch || !canPlay;
-    
-    if(useGif) {
-      var cats = document.getElementById('cats'),
-          img = document.createElement('img');
+  <div class='container' id='catbox'></div>
 
-      img.src = 'http://media.giphy.com/media/CAT_ID/giphy.gif';
-      while(cats.firstChild) cats.removeChild(cats.firstChild);
-      cats.appendChild(img);
-    }
+  <div class='inset container'>
+    <div class='table text-sm search-container' id='searchbox'>
+      <span class='table-cell tc-1'>&gt;</span>
+      <input class='table-cell tc-100' id='query' onclick='this.select()' placeholder='Enter a location'>
+      <span class='table-cell tc-1 cursor-pointer' id='submit'>submit</span>
+    </div>
+    <div class='inset text-tiny text-center bright hidden' id='badquerybox'>We're not sure where <span id='badquery'></span> is...</div>
+  </div>
+
+  <div class='narrow container hidden' id='weatherbox'>
+    <div class='text-lg table text-center'>
+      <div class='table-cell tc-50'>
+        <canvas class='icon pull-middle' id='icon' width=100 height=100></canvas>
+      </div>
+      <div class='table-cell tc-50'>
+        <span class='pull-middle line-height' id='temperature'></span>
+      </div>
+    </div>
+    <div class='text-sm table text-center'>
+      <div class='table-cell pull-top tc-50'>
+        <span id='summary'></span>
+      </div>
+      <!--
+      <div class='table-cell pull-top tc-50 text-left'>
+      </div>
+      -->
+      <div class='table-cell pull-top tc-50 text-center'>
+        <div class='inline text-left'>
+          <p>Feels like <span id='feelsLike'></span></p>
+          <p>High <span id='high'></span></p>
+          <p>Low <span id='low'></span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC8ZDYfUJBymP5eqaInk8RXI1xGz8HvDKs'></script>
+
+  <script type='text/javascript' src='static/js/skycons.js'></script>
+  <script type='text/javascript' src='static/js/forecats.js'></script>
+
+  <script type='text/javascript'>
+    var forecats = new Forecats();
+    forecats.initialize('CAT_ID');
 
     setTimeout(function() {
-      document.getElementById('fade').className = '';
-    }, 1250);
-  }());
+      document.getElementById('poweredBy').classList.remove('hidden');
+    }, 1337);
   </script>
 
 </body>

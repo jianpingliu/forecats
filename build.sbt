@@ -4,22 +4,20 @@ organization  := "io.forecats"
 
 version       := "0.1"
 
-scalaVersion  := "2.10.2"
+scalaVersion  := "2.11.2"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
-  val akkaV = "2.3.5"
-  val sprayV = "1.3.1"
+  val akkaV = "2.3.6"
+  val sprayV = "1.3.2"
   Seq(
-    "io.spray"            %   "spray-can"     % sprayV,
-    "io.spray"            %   "spray-client"  % sprayV,
-    "io.spray"            %%  "spray-json"    % "1.2.6",
-    "net.virtual-void"    %%  "json-lenses"   % "0.5.4",
-    "io.spray"            %   "spray-routing" % sprayV,
-    "io.spray"            %   "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
-    "net.debasishg"       %   "redisclient_2.10"  % "2.12"
+    "io.spray"            %%  "spray-can"     % sprayV,
+    "io.spray"            %%  "spray-client"  % sprayV,
+    "io.spray"            %%  "spray-routing" % sprayV,
+    "io.argonaut"         %%  "argonaut"      % "6.0.4",
+    "net.debasishg"       %%  "redisclient"   % "2.13"
   )
 }
 

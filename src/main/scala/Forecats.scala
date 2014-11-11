@@ -1,6 +1,7 @@
 package io.forecats
 
 import akka.actor.{Actor, ActorSystem}
+import argonaut._, Argonaut._
 import com.typesafe.config.Config
 import spray.routing._
 import spray.httpx.encoding._
@@ -20,9 +21,9 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
-    //weatherRequest ~ 
-    catRequest ~
-    frontEndRoutes
+    //frontEndRoutes ~
+    weatherRequest ~
+    catRequest
   }
 }
 
@@ -33,34 +34,37 @@ trait ForecatsService extends HttpService {
   val weatherUtil: WeatherLookup
   val catUtil: CatLookup
 
-  lazy val frontend = scala.io.Source.fromURL(
-    getClass.getResource("/www/index.html")
-  ).mkString
+  /* the frontend (which is all static) will be served by lighttpd
+   *
+   * lazy val frontend = scala.io.Source.fromURL(
+   *   getClass.getResource("/www/index.html")
+   * ).mkString
 
-  def frontEndWithCat(cat: String) = frontend.replace("CAT_ID", cat)
-  
-  val frontEndRoutes =
-    compressResponseIfRequested() {
-      path("") { 
-        onSuccess(catUtil.getRandom) { cat =>
-          respondWithMediaType(HTML) {
-            complete(frontEndWithCat(cat))
-          }
-        }
-      } ~
-      getFromResourceDirectory("www")
-    }
+   * def frontEndWithCat(cat: String) = frontend.replace("CAT_ID", cat)
+   *
+   * val frontEndRoutes =
+   *   compressResponseIfRequested() {
+   *     path("") {
+   *       onSuccess(catUtil.getRandom) { cat =>
+   *         respondWithMediaType(HTML) {
+   *           complete(frontEndWithCat(cat))
+   *         }
+   *       }
+   *     } ~
+   *     getFromResourceDirectory("www")
+   *   }
+   */
 
   def weatherRequest =
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lon) =>
       onSuccess(fromCoordinatesLookup(lat, lon)) { response =>
         respondWithMediaType(JSON) {
-          complete(response.toJson.toString)
+          complete(response.asJson.toString)
         }
       }
     }
 
-  def fromCoordinatesLookup(lat: Double, lon: Double) = 
+  def fromCoordinatesLookup(lat: Double, lon: Double) =
     weatherUtil.getWeather(lat, lon) 
 
   def catRequest = 

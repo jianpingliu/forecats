@@ -1,15 +1,17 @@
 * {
   margin: 0;
 }
+body {
+  margin: 3% 0;
+}
 .container {
   font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
   color: #0F0706;
   max-width: 500px;
   margin: 0 auto;
 }
-.header,
-.footer {
-  margin-top: 5%;
+.cat-container {
+  max-width: 525px;
 }
 .header {
   padding: 0 1em;
@@ -22,7 +24,6 @@
   width: 100%;
   height: auto;
 }
-
 #giphyLink,
 #forecastLink {
   text-decoration: none;
@@ -73,11 +74,9 @@
 .offset-left {
   margin-left: 20%;
 }
-
 .hidden {
   display: none;
 }
-
 #query {
   font: inherit;
   background-color: rgba(0,0,0,0);
@@ -85,30 +84,25 @@
   outline: 0;
   text-overflow: ellipsis;
 }
-
 .search-container {
   border-radius: 2em;
   padding: 0 0.5em;
-  border: 2.5pt solid #0F0706;
+  border: 2pt solid #0F0706;
 }
 .search-container .table-cell {
-  padding: 8px 6px;
+  padding: 7px 13px;
 }
-
 #giphyLink,
 #forecastLink,
 .bright {
-  color: #e74c3c
+  color: #DE1717;
 }
-
 .cursor-pointer {
   cursor: pointer;
 }
-
 @media screen and (min-width: 497px) {
-  .header,
-  .footer {
-    margin-top: 5%;
+  body {
+    margin: 2% 0 5% auto;
   }
   .header {
     padding: 0;

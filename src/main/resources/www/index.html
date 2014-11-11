@@ -14,16 +14,15 @@
   
   <div class='container header line-height'>
     <span class='text-md bright'>Forecats</span>
-    <span class='text-tiny hidden' id='poweredBy'>is powered by <a href='http://giphy.com' class='references' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' class='references' id='forecastLink'>Forecast</a></small>
+    <span class='text-tiny hidden' id='poweredBy'>powered by <a href='http://giphy.com' class='references' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' class='references' id='forecastLink'>Forecast</a>.</small>
   </div>
 
-  <div class='container' id='catbox'></div>
+  <div class='container cat-container' id='catbox'></div>
 
   <div class='inset container'>
     <div class='table text-sm search-container' id='searchbox'>
-      <span class='table-cell tc-1'>&gt;</span>
       <input class='table-cell tc-100' id='query' onclick='this.select()' placeholder='Enter a location'>
-      <span class='table-cell tc-1 cursor-pointer' id='submit'>submit</span>
+      <span class='table-cell tc-1 cursor-pointer bright' id='submit'>submit</span>
     </div>
     <div class='inset text-tiny text-center bright hidden' id='badquerybox'>We're not sure where <span id='badquery'></span> is...</div>
   </div>
@@ -41,10 +40,6 @@
       <div class='table-cell pull-top tc-50'>
         <span id='summary'></span>
       </div>
-      <!--
-      <div class='table-cell pull-top tc-50 text-left'>
-      </div>
-      -->
       <div class='table-cell pull-top tc-50 text-center'>
         <div class='inline text-left'>
           <p>Feels like <span id='feelsLike'></span></p>
@@ -55,18 +50,16 @@
     </div>
   </div>
 
-  <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyC8ZDYfUJBymP5eqaInk8RXI1xGz8HvDKs'></script>
-
-  <script type='text/javascript' src='static/js/skycons.js'></script>
+  <script type='text/javascript' src='//maps.googleapis.com/maps/api/js?key=AIzaSyC8ZDYfUJBymP5eqaInk8RXI1xGz8HvDKs'></script>
+  <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js'></script>
   <script type='text/javascript' src='static/js/forecats.js'></script>
-
   <script type='text/javascript'>
-    var forecats = new Forecats();
-    forecats.initialize('CAT_ID');
-
     setTimeout(function() {
       document.getElementById('poweredBy').classList.remove('hidden');
     }, 1337);
+
+    (new Forecats()).initialize();
+    console.log('check it out on github: http://github.com/abtrout/forecats');
   </script>
 
 </body>

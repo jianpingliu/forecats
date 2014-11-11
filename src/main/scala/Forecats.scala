@@ -21,9 +21,9 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
+    //frontEndRoutes ~
     weatherRequest ~
     catRequest
-    //frontEndRoutes
   }
 }
 
@@ -34,23 +34,26 @@ trait ForecatsService extends HttpService {
   val weatherUtil: WeatherLookup
   val catUtil: CatLookup
 
-  lazy val frontend = scala.io.Source.fromURL(
-    getClass.getResource("/www/index.html")
-  ).mkString
+  /* the frontend (which is all static) will be served by lighttpd
+   *
+   * lazy val frontend = scala.io.Source.fromURL(
+   *   getClass.getResource("/www/index.html")
+   * ).mkString
 
-  def frontEndWithCat(cat: String) = frontend.replace("CAT_ID", cat)
-  
-  val frontEndRoutes =
-    compressResponseIfRequested() {
-      path("") { 
-        onSuccess(catUtil.getRandom) { cat =>
-          respondWithMediaType(HTML) {
-            complete(frontEndWithCat(cat))
-          }
-        }
-      } ~
-      getFromResourceDirectory("www")
-    }
+   * def frontEndWithCat(cat: String) = frontend.replace("CAT_ID", cat)
+   *
+   * val frontEndRoutes =
+   *   compressResponseIfRequested() {
+   *     path("") {
+   *       onSuccess(catUtil.getRandom) { cat =>
+   *         respondWithMediaType(HTML) {
+   *           complete(frontEndWithCat(cat))
+   *         }
+   *       }
+   *     } ~
+   *     getFromResourceDirectory("www")
+   *   }
+   */
 
   def weatherRequest =
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lon) =>
@@ -61,7 +64,7 @@ trait ForecatsService extends HttpService {
       }
     }
 
-  def fromCoordinatesLookup(lat: Double, lon: Double) = 
+  def fromCoordinatesLookup(lat: Double, lon: Double) =
     weatherUtil.getWeather(lat, lon) 
 
   def catRequest = 

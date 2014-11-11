@@ -1,4 +1,3 @@
-## Forecats
+# Forecats
 
-It's easy to mistype [forecast](http://forecast.io).
-
+Because it's easy to mistype [forecast](http://forecats.io).

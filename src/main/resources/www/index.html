@@ -3,6 +3,7 @@
 <head>
 
   <title>Forecats</title>
+  <meta charset='utf-8'>
   <meta name='author' content='David Cochran'>
   <meta name='description' content='Weather and cat GIFs'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
@@ -14,7 +15,7 @@
   
   <div class='container header line-height'>
     <span class='text-md bright'>Forecats</span>
-    <span class='text-tiny hidden' id='poweredBy'>powered by <a href='http://giphy.com' class='references' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' class='references' id='forecastLink'>Forecast</a>.</small>
+    <small class='text-xs hidden' id='poweredBy'>powered by <a href='http://giphy.com' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' id='forecastLink'>Forecast</a>.</small>
   </div>
 
   <div class='container cat-container' id='catbox'></div>
@@ -22,7 +23,7 @@
   <div class='inset container'>
     <div class='table text-sm search-container' id='searchbox'>
       <input class='table-cell tc-100' id='query' onclick='this.select()' placeholder='Enter a location'>
-      <span class='table-cell tc-1 cursor-pointer bright' id='submit'>submit</span>
+      <span class='table-cell tc-1 cursor-pointer bright' id='search'>search</span>
     </div>
     <div class='inset text-tiny text-center bright hidden' id='badquerybox'>We're not sure where <span id='badquery'></span> is...</div>
   </div>
@@ -43,8 +44,8 @@
       <div class='table-cell pull-top tc-50 text-center'>
         <div class='inline text-left'>
           <p>Feels like <span id='feelsLike'></span></p>
-          <p>High <span id='high'></span></p>
-          <p>Low <span id='low'></span></p>
+          <p>High <span id='high'></span> <small class='light'>at <span id='highTime'></small></span></p>
+          <p>Low <span id='low'></span> <small class='light'>at <span id='lowTime'></small></span></p>
         </div>
       </div>
     </div>

@@ -110,7 +110,7 @@ function Forecats() {
         }
       },
       
-      skycons = new Skycons({ color: "#0F0706", resizeClear: true }),
+      skycons = new Skycons({ color: "#312B27", resizeClear: true }),
       displayWeather = function(weather) {
         $('summary').textContent = weather.currently.summary;
         $('temperature').textContent = weather.currently.temperature;
@@ -121,6 +121,14 @@ function Forecats() {
 
         $('high').textContent = weather.daily[0].temperatureMax;
         $('low').textContent = weather.daily[0].temperatureMin;
+
+        var simpleTime = function(ts) {
+          var x = new Date(ts).getHours();
+          return ((x + 11) % 12 + 1) + (x < 12 ? 'AM' : 'PM');
+        };
+
+        $('lowTime').textContent = simpleTime(weather.daily[0].temperatureMinTime * 1000);
+        $('highTime').textContent = simpleTime(weather.daily[0].temperatureMaxTime * 1000);
 
         $('weatherbox').classList.remove('hidden');
       },
@@ -164,20 +172,21 @@ function Forecats() {
 
       // to deal with async google maps loading
       var google = google || {};
+
       google.cmd = google.cmd || {};
       google.cmd.push = function(callback) {
-        var timeout = google ? 0 : 50,
-            t = setInterval(function() {
-              if(google) {
-                giveUp();
+        if(!google) {
+          var dt = google ? 0 : 50,
+              tick = setInterval(function() {
+                if(!google) return;
+
+                clearInterval(t);
                 callback();
-              }
-            }, timeout),
-            giveUp = function() {
-              clearInterval(t); 
-            };
-        
-        setTimeout(giveUp, 60 * timeout);
+              }, dt);
+
+          setTimeout(clearInterval.call(window, tick), 60*dt);
+        }
+        else callback();
       };
       
       (function searchSetup() {
@@ -194,7 +203,7 @@ function Forecats() {
             },
             clickHandler = searchHandler;
 
-        $('submit').addEventListener('click', clickHandler);
+        $('search').addEventListener('click', clickHandler);
         $('query').addEventListener('keypress', keypressHandler);
       }());
 

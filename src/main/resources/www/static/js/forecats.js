@@ -164,20 +164,21 @@ function Forecats() {
 
       // to deal with async google maps loading
       var google = google || {};
+
       google.cmd = google.cmd || {};
       google.cmd.push = function(callback) {
-        var timeout = google ? 0 : 50,
-            t = setInterval(function() {
-              if(google) {
-                giveUp();
+        if(!google) {
+          var dt = google ? 0 : 50,
+              tick = setInterval(function() {
+                if(!google) return;
+
+                clearInterval(t);
                 callback();
-              }
-            }, timeout),
-            giveUp = function() {
-              clearInterval(t); 
-            };
-        
-        setTimeout(giveUp, 60 * timeout);
+              }, dt);
+
+          setTimeout(clearInterval.call(window, tick), 60*dt);
+        }
+        else callback();
       };
       
       (function searchSetup() {

@@ -110,7 +110,7 @@ function Forecats() {
         }
       },
       
-      skycons = new Skycons({ color: "#0F0706", resizeClear: true }),
+      skycons = new Skycons({ color: "#312B27", resizeClear: true }),
       displayWeather = function(weather) {
         $('summary').textContent = weather.currently.summary;
         $('temperature').textContent = weather.currently.temperature;

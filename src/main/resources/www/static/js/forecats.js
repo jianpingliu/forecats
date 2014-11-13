@@ -122,6 +122,14 @@ function Forecats() {
         $('high').textContent = weather.daily[0].temperatureMax;
         $('low').textContent = weather.daily[0].temperatureMin;
 
+        var simpleTime = function(ts) {
+          var x = new Date(ts).getHours();
+          return ((x + 11) % 12 + 1) + (x < 12 ? 'AM' : 'PM');
+        };
+
+        $('lowTime').textContent = simpleTime(weather.daily[0].temperatureMinTime * 1000);
+        $('highTime').textContent = simpleTime(weather.daily[0].temperatureMaxTime * 1000);
+
         $('weatherbox').classList.remove('hidden');
       },
       displayCat = (function() {

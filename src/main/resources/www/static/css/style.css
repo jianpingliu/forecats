@@ -1,17 +1,19 @@
 * {
   margin: 0;
 }
+
 body {
   margin: 3% 0;
 }
+
 .container {
   font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
-  color: #0F0706;
+  color: #1B140F;
   max-width: 500px;
   margin: 0 auto;
 }
 .cat-container {
-  max-width: 525px;
+  max-width: 550px;
 }
 .header {
   padding: 0 1em;
@@ -96,6 +98,9 @@ body {
 #forecastLink,
 .bright {
   color: #DE1717;
+}
+.light {
+  opacity: 0.50;
 }
 .cursor-pointer {
   cursor: pointer;

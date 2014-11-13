@@ -13,7 +13,7 @@ object DataTypes extends WeatherTypes {
   )
 
   implicit def currentWeatherCodec = casecodec4(CurrentWeather.apply, CurrentWeather.unapply)("icon", "summary", "temperature", "apparentTemperature")
-  implicit def dailyWeatherCodec = casecodec5(DailyWeather.apply, DailyWeather.unapply)("time", "icon", "summary", "temperatureMin", "temperatureMax")
+  implicit def dailyWeatherCodec = casecodec7(DailyWeather.apply, DailyWeather.unapply)("time", "icon", "summary", "temperatureMin", "temperatureMinTime", "temperatureMax", "temperatureMaxTime")
   implicit def hourlyWeatherCodec = casecodec4(HourlyWeather.apply, HourlyWeather.unapply)("time", "icon", "summary", "temperature")
 
   implicit def forecastDecoder = DecodeJson[Forecast](c => {
@@ -61,6 +61,8 @@ trait WeatherTypes {
     icon: String,
     summary: String,
     temperatureMin: Int,
-    temperatureMax: Int
+    temperatureMinTime: Long,
+    temperatureMax: Int,
+    temperatureMaxTime: Long
   )
 }

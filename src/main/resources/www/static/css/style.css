@@ -99,13 +99,16 @@ body {
 .bright {
   color: #DE1717;
 }
+#poweredBy {
+  display: none;
+}
 .light {
   opacity: 0.50;
 }
 .cursor-pointer {
   cursor: pointer;
 }
-@media screen and (min-width: 497px) {
+@media screen and (min-width: 500px) {
   body {
     margin: 2% 0 5% auto;
   }
@@ -114,5 +117,8 @@ body {
   }
   .narrow {
     padding: 0 5em;
+  }
+  #poweredBy {
+    display: inline;
   }
 }

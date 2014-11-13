@@ -195,7 +195,7 @@ function Forecats() {
             },
             clickHandler = searchHandler;
 
-        $('submit').addEventListener('click', clickHandler);
+        $('search').addEventListener('click', clickHandler);
         $('query').addEventListener('keypress', keypressHandler);
       }());
 

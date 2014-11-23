@@ -20,17 +20,21 @@ libraryDependencies ++= {
   )
 }
 
-Revolver.settings
+seq(Revolver.settings: _*)
 
-assemblySettings
+seq(jsSettings: _*)
+
+(resourceGenerators in Compile) <+= (JsKeys.js in Compile)
+
+(compile in Compile) <<= compile in Compile dependsOn (JsKeys.js in Compile)
+
+seq(assemblySettings: _*)
 
 jarName in assembly := "forecats.jar"
+
+mainClass in assembly := Some("io.forecats.Boot")
 
 mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
   case PathList("www", xs @ _*) => MergeStrategy.discard
   case x => old(x)
 }}
-
-test in assembly := {}
-
-mainClass in assembly := Some("io.forecats.Boot")

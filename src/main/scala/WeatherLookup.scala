@@ -1,14 +1,15 @@
 package io.forecats
 
 import akka.actor.ActorSystem
-import scala.concurrent.Future
-import spray.http._
+import com.typesafe.config.Config
 import spray.client.pipelining._
 
-class WeatherLookup(apiKey: String)(implicit system: ActorSystem) {
+class WeatherLookup(config: Config)(implicit system: ActorSystem) {
 
   import system.dispatcher
   import DataTypes.Forecast
+
+  private val apiKey = config.getString("apiKey")
   
   val baseUrl = s"https://api.forecast.io/forecast/${apiKey}"
   val options = "exclude=hourly,minutely,alerts,flags"

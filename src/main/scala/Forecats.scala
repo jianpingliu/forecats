@@ -1,27 +1,26 @@
 package io.forecats
 
-import akka.actor.{Actor, ActorSystem}
+import akka.actor.{Actor, ActorSystem, ActorLogging}
+import akka.event.LoggingAdapter
 import argonaut._, Argonaut._
 import com.typesafe.config.Config
+import scala.util.{Success, Failure}
 import spray.routing._
-import spray.httpx.encoding._
-import spray.http.MediaTypes.{
-  `application/json` => JSON,
-  `text/html` => HTML
-}
+import spray.http.MediaTypes.{`application/json` => JSON}
+import spray.http.StatusCodes
 
 class ForecatsActor(config: Config)(implicit system: ActorSystem) 
-  extends Actor 
+  extends Actor
+  with ActorLogging
   with ForecatsService {
 
   def actorRefFactory = context
   implicit def executionContext = actorRefFactory.dispatcher
 
-  val weatherUtil = new WeatherLookup(config.getString("forecast.apiKey"))
+  val weatherUtil = new WeatherLookup(config.getConfig("forecast"))
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
-    //frontEndRoutes ~
     weatherRequest ~
     catRequest
   }
@@ -31,46 +30,39 @@ trait ForecatsService extends HttpService {
 
   import scala.concurrent.ExecutionContext.Implicits.global
 
+  def log: LoggingAdapter
+
+  import DataTypes.Forecast
+
   val weatherUtil: WeatherLookup
   val catUtil: CatLookup
 
-  /* the frontend (which is all static) will be served by lighttpd
-   *
-   * lazy val frontend = scala.io.Source.fromURL(
-   *   getClass.getResource("/www/index.html")
-   * ).mkString
-
-   * def frontEndWithCat(cat: String) = frontend.replace("CAT_ID", cat)
-   *
-   * val frontEndRoutes =
-   *   compressResponseIfRequested() {
-   *     path("") {
-   *       onSuccess(catUtil.getRandom) { cat =>
-   *         respondWithMediaType(HTML) {
-   *           complete(frontEndWithCat(cat))
-   *         }
-   *       }
-   *     } ~
-   *     getFromResourceDirectory("www")
-   *   }
-   */
-
   def weatherRequest =
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lon) =>
-      onSuccess(fromCoordinatesLookup(lat, lon)) { response =>
-        respondWithMediaType(JSON) {
-          complete(response.asJson.toString)
-        }
+      // TODO: validate lat/lon and possibly complete(StatusCodes.BadRequest)
+      onComplete(weatherFromCoordinates(lat, lon)) {
+        case Success(forecast) => completeWithJson(forecast)
+        case Failure(ex) =>
+          log error s"weather lookup for coordinates ($lat,$lon) failed: ${ex.getMessage}"
+          complete(StatusCodes.InternalServerError)
       }
     }
 
-  def fromCoordinatesLookup(lat: Double, lon: Double) =
+  def completeWithJson(forecast: Forecast) =
+    respondWithMediaType(JSON) {
+      complete(forecast.asJson.toString)
+    }
+
+  def weatherFromCoordinates(lat: Double, lon: Double) =
     weatherUtil.getWeather(lat, lon) 
 
   def catRequest = 
     path("cats" / "random") {
-      onSuccess(catUtil.getRandom) { cat =>
-        complete(cat)
+      onComplete(catUtil.getRandom) {
+        case Success(cat) => complete(cat)
+        case Failure(ex) =>
+          log error s"random cat query failed: ${ex.getMessage}"
+          complete(StatusCodes.InternalServerError)
       }
     }
 }

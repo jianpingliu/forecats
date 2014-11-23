@@ -3,7 +3,7 @@ package io.forecats
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import scala.concurrent.{Future, Promise}
-import com.redis._
+import com.redis.RedisClient
 
 class CatLookup(val config: Config)(implicit system: ActorSystem) {
 
@@ -14,17 +14,19 @@ class CatLookup(val config: Config)(implicit system: ActorSystem) {
     config.getInt("port")
   )
 
-  def getRandom = getRandomByTag("cats") 
+  private val cats = config.getString("set")
 
-  def getRandomByTag(tag: String) = {
+  def randomFromSet(set: String) = {
     val p = Promise[String]()
     Future {
-      r.srandmember(tag) match {
-        case Some(id) => p.success(id)
-        case None => p.failure(new Exception)
+      r.srandmember(set) match {
+        case Some(cat) => p.success(cat)
+        case None => p.failure(new Exception(s"empty set $set"))
       }
     }
 
     p.future
   }
+
+  def getRandom = randomFromSet(cats)
 }

@@ -13,7 +13,7 @@ object Boot extends App {
 
   IO(Http) ! Http.Bind(
     system.actorOf(Props(new ForecatsActor(config)), "forecats-service"),
-    interface = config.getString("interface"), 
-    port = config.getInt("port") 
+    interface = config.getString("interface"),
+    port = config.getInt("port")
   )
 }

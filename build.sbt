@@ -26,6 +26,11 @@ assemblySettings
 
 jarName in assembly := "forecats.jar"
 
+mergeStrategy in assembly <<= (mergeStrategy in assembly) { old => {
+  case PathList("www", xs @ _*) => MergeStrategy.discard
+  case x => old(x)
+}}
+
 test in assembly := {}
 
 mainClass in assembly := Some("io.forecats.Boot")

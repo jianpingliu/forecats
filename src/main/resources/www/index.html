@@ -1,67 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang='en' ng-app='forecats'>
 <head>
-
-  <title>Forecats</title>
+  
   <meta charset='utf-8'>
-  <meta name='author' content='David Cochran'>
-  <meta name='description' content='Weather and cat GIFs'>
-  <meta name='viewport' content='width=device-width,initial-scale=1'>
-  <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css'>
+  <title>Forecats</title>
   <link rel='stylesheet' type='text/css' href='style.css'>
+  <script src='//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js'></script>
 
 </head>
 <body>
+
+  <div class='container'>
+    <header>Forecats</header>
+  </div>
+  <div class='container cat-container' ng-controller='catControl'>
+    <img ng-if='id && fallback' ng-src='//i.imgur.com/{{id}}.gif' width='100%' height='auto'>
+    <video ng-if='id && !fallback' width='100%' height='auto' autoplay loop -webkit-playsinline>
+      <source type='video/mp4' ng-src='//i.imgur.com/{{id}}.mp4'>
+      <source type='video/webm' ng-src='//i.imgur.com/{{id}}.webm'>
+    </video>
+  </div>
+  <div class='container' ng-controller='locationControl'>
+    <input type='text' placeholder='Enter a location' ng-model='query'>
+    <button ng-click='search()'>search</button>
+  </div>
+  <div class='container weather-container' ng-controller='weatherControl' ng-show='forecast'>
+    Weather: {{ forecast }}
+  </div>
+  <div class='container' ng-controller='creditsControl'>
+    <footer>powered by <a href='http://imgur.com/i/{{ catId }}'>Imgur and Forecast</footer>
+  </div>
   
-  <div class='container header line-height'>
-    <span class='text-md bright'>Forecats</span>
-    <small class='text-xs hidden' id='poweredBy'>powered by <a href='http://giphy.com' id='giphyLink'>Giphy</a> and <a href='http://forecast.io' id='forecastLink'>Forecast</a>.</small>
-  </div>
-
-  <div class='container cat-container' id='catbox'></div>
-
-  <div class='inset container'>
-    <div class='table text-sm search-container' id='searchbox'>
-      <input class='table-cell tc-100' id='query' onclick='this.select()' placeholder='Enter a location'>
-      <span class='table-cell tc-1 cursor-pointer bright' id='search'>search</span>
-    </div>
-    <div class='inset text-tiny text-center bright hidden' id='badquerybox'>We're not sure where <span id='badquery'></span> is...</div>
-  </div>
-
-  <div class='narrow container hidden' id='weatherbox'>
-    <div class='text-lg table text-center'>
-      <div class='table-cell tc-50'>
-        <canvas class='icon pull-middle' id='icon' width=100 height=100></canvas>
-      </div>
-      <div class='table-cell tc-50'>
-        <span class='pull-middle line-height' id='temperature'></span>
-      </div>
-    </div>
-    <div class='text-sm table text-center'>
-      <div class='table-cell pull-top tc-50'>
-        <span id='summary'></span>
-      </div>
-      <div class='table-cell pull-top tc-50 text-center'>
-        <div class='inline text-left'>
-          <p>Feels like <span id='feelsLike'></span></p>
-          <p>High <span id='high'></span> <small class='light'>at <span id='highTime'></small></span></p>
-          <p>Low <span id='low'></span> <small class='light'>at <span id='lowTime'></small></span></p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script type='text/javascript' src='//maps.googleapis.com/maps/api/js?key=AIzaSyC8ZDYfUJBymP5eqaInk8RXI1xGz8HvDKs'></script>
-  <script type='text/javascript' src='//cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js'></script>
-  <script type='text/javascript' src='forecats.js'></script>
-  <script type='text/javascript'>
-    setTimeout(function() {
-      document.getElementById('poweredBy').classList.remove('hidden');
-    }, 1337);
-
-    (new Forecats()).initialize();
-    console.log('check it out on github: http://github.com/abtrout/forecats');
-  </script>
+  <script src='forecats.js'></script>
 
 </body>
 </html>

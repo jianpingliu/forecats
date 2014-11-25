@@ -62,7 +62,7 @@ trait ForecatsService extends HttpService {
         case Success(cat) => complete(cat)
         case Failure(ex) =>
           log error s"random cat query failed: ${ex.getMessage}"
-          complete(StatusCodes.InternalServerError)
+          complete(StatusCodes.NotFound)
       }
     }
 }

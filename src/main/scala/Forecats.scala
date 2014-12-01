@@ -38,14 +38,19 @@ trait ForecatsService extends HttpService {
   val catUtil: CatLookup
 
   def weatherRequest =
-    path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lon) =>
-      // TODO: validate lat/lon and possibly complete(StatusCodes.BadRequest)
-      onComplete(weatherFromCoordinates(lat, lon)) {
-        case Success(forecast) => completeWithJson(forecast)
-        case Failure(ex) =>
-          log error s"weather lookup for coordinates ($lat,$lon) failed: ${ex.getMessage}"
-          complete(StatusCodes.InternalServerError)
+    path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
+      if((-91 < lat && lat < 91) && (-181 < lng && lng < 181)) {
+        completeWithWeather(lat, lng)
       }
+      else complete(StatusCodes.BadRequest)
+    }
+
+  def completeWithWeather(lat: Double, lng: Double) =
+    onComplete(weatherFromCoordinates(lat, lng)) {
+      case Success(forecast) => completeWithJson(forecast)
+      case Failure(ex) =>
+        log error s"weather lookup for coordinates ($lat,$lng) failed: ${ex.getMessage}"
+        complete(StatusCodes.InternalServerError)
     }
 
   def completeWithJson(forecast: Forecast) =
@@ -53,8 +58,8 @@ trait ForecatsService extends HttpService {
       complete(forecast.asJson.toString)
     }
 
-  def weatherFromCoordinates(lat: Double, lon: Double) =
-    weatherUtil.getWeather(lat, lon) 
+  def weatherFromCoordinates(lat: Double, lng: Double) =
+    weatherUtil.getWeather(lat, lng) 
 
   def catRequest = 
     path("cats" / "random") {

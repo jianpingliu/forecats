@@ -16,4 +16,7 @@ object Boot extends App {
     interface = config.getString("interface"),
     port = config.getInt("port")
   )
+
+  // TODO: attach an actor to EventStream to better debug
+  // dead letters. <http://stackoverflow.com/questions/23902900/how-to-view-akka-dead-letters>
 }

@@ -21,32 +21,36 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   val catUtil = new CatLookup(config.getConfig("redis"))
 
   def receive = runRoute {
-    weatherRequest ~
-    catRequest
+    get {
+      weatherRequest ~
+      catRequest
+    }
   }
 }
 
 trait ForecatsService extends HttpService {
 
   import scala.concurrent.ExecutionContext.Implicits.global
+  import DataTypes.Forecast
 
   def log: LoggingAdapter
-
-  import DataTypes.Forecast
 
   val weatherUtil: WeatherLookup
   val catUtil: CatLookup
 
   def weatherRequest =
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
-      if((-91 < lat && lat < 91) && (-181 < lng && lng < 181)) {
-        completeWithWeather(lat, lng)
+      if(validCoordinates(lat, lng)) {
+        weatherFromCoordinates(lat, lng)
       }
       else complete(StatusCodes.BadRequest)
     }
 
-  def completeWithWeather(lat: Double, lng: Double) =
-    onComplete(weatherFromCoordinates(lat, lng)) {
+  def validCoordinates(lat: Double, lng: Double) =
+    (-90 <= lat && lat <= 90) && (-180 <= lng && lng <= 180)
+
+  def weatherFromCoordinates(lat: Double, lng: Double) =
+    onComplete(weatherUtil.getWeather(lat, lng)) {
       case Success(forecast) => completeWithJson(forecast)
       case Failure(ex) =>
         log error s"weather lookup for coordinates ($lat,$lng) failed: ${ex.getMessage}"
@@ -57,9 +61,6 @@ trait ForecatsService extends HttpService {
     respondWithMediaType(JSON) {
       complete(forecast.asJson.toString)
     }
-
-  def weatherFromCoordinates(lat: Double, lng: Double) =
-    weatherUtil.getWeather(lat, lng) 
 
   def catRequest = 
     path("cats" / "random") {

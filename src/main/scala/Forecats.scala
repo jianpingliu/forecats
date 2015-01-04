@@ -17,15 +17,15 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   def actorRefFactory = context
   implicit def executionContext = actorRefFactory.dispatcher
 
-  val weatherUtil = new WeatherLookup(config.getConfig("forecast"))
-  val catUtil = new CatLookup(config.getConfig("redis"))
+  implicit val weatherUtil = new WeatherLookup(config.getConfig("forecast"))
+  implicit val catUtil = new CatLookup(config.getConfig("redis"))
 
-  def receive = runRoute {
+  def receive = runRoute(
     get {
       weatherRequest ~
       catRequest
     }
-  }
+  )
 }
 
 trait ForecatsService extends HttpService {
@@ -34,35 +34,25 @@ trait ForecatsService extends HttpService {
   import DataTypes.Forecast
 
   def log: LoggingAdapter
-
-  val weatherUtil: WeatherLookup
-  val catUtil: CatLookup
-
-  def weatherRequest =
-    path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
-      if(validCoordinates(lat, lng)) {
-        weatherFromCoordinates(lat, lng)
-      }
-      else complete(StatusCodes.BadRequest)
-    }
-
+  
   def validCoordinates(lat: Double, lng: Double) =
     (-90 <= lat && lat <= 90) && (-180 <= lng && lng <= 180)
 
-  def weatherFromCoordinates(lat: Double, lng: Double) =
-    onComplete(weatherUtil.getWeather(lat, lng)) {
-      case Success(forecast) => completeWithJson(forecast)
-      case Failure(ex) =>
-        log error s"weather lookup for coordinates ($lat,$lng) failed: ${ex.getMessage}"
-        complete(StatusCodes.InternalServerError)
+  def weatherRequest(implicit weatherUtil: WeatherLookup) =
+    path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
+      validate(validCoordinates(lat, lng), s"Invalid coordinates") {
+        onComplete(weatherUtil.getWeather(lat, lng)) {
+          case Success(forecast) => respondWithMediaType(JSON) {
+            complete(forecast.asJson.toString)
+          }
+          case Failure(ex) =>
+            log error s"failed to getWeather for coordinates ($lat, $lng): ${ex.getMessage}"
+            complete(StatusCodes.InternalServerError)
+        }
+      }
     }
 
-  def completeWithJson(forecast: Forecast) =
-    respondWithMediaType(JSON) {
-      complete(forecast.asJson.toString)
-    }
-
-  def catRequest = 
+  def catRequest(implicit catUtil: CatLookup) =
     path("cats" / "random") {
       onComplete(catUtil.getRandom) {
         case Success(cat) => complete(cat)

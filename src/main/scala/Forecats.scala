@@ -8,6 +8,7 @@ import scala.util.{Success, Failure}
 import spray.routing._
 import spray.http.MediaTypes.{`application/json` => JSON}
 import spray.http.StatusCodes
+import spray.http.HttpHeaders.RawHeader
 
 class ForecatsActor(config: Config)(implicit system: ActorSystem) 
   extends Actor
@@ -22,8 +23,10 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
 
   def receive = runRoute(
     get {
-      weatherRequest ~
-      catRequest
+      respondWithHeader(RawHeader("Access-Control-Allow-Origin", "*")) {
+        weatherRequest ~
+        catRequest
+      }
     }
   )
 }

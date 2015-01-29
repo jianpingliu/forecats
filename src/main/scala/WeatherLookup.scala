@@ -12,7 +12,7 @@ class WeatherLookup(config: Config)(implicit system: ActorSystem) {
   private val apiKey = config.getString("apiKey")
   
   val baseUrl = s"https://api.forecast.io/forecast/${apiKey}"
-  val options = "exclude=hourly,minutely,alerts,flags"
+  val options = "exclude=minutely,alerts,flags"
   val pipeline = sendReceive ~> unmarshal[Forecast]
 
   def getWeather(lat: Double, lon: Double) =

@@ -8,25 +8,28 @@ object DataTypes extends WeatherTypes {
 
   case class Forecast(
     currently: CurrentWeather,
-    //hourly: List[HourlyWeather],
+    hourly: List[HourlyWeather],
     daily: List[DailyWeather]
   )
 
   implicit def currentWeatherCodec = casecodec4(CurrentWeather.apply, CurrentWeather.unapply)("icon", "summary", "temperature", "apparentTemperature")
   implicit def dailyWeatherCodec = casecodec7(DailyWeather.apply, DailyWeather.unapply)("time", "icon", "summary", "temperatureMin", "temperatureMinTime", "temperatureMax", "temperatureMaxTime")
-  //implicit def hourlyWeatherCodec = casecodec4(HourlyWeather.apply, HourlyWeather.unapply)("time", "icon", "summary", "temperature")
+  implicit def hourlyWeatherCodec = casecodec4(HourlyWeather.apply, HourlyWeather.unapply)("time", "icon", "summary", "temperature")
+
+  def parseHourly(xs: List[HourlyWeather]) =
+    xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
 
   implicit def forecastDecoder = DecodeJson[Forecast](c => {
     for {
       currently <- (c --\ "currently").as[CurrentWeather]
-      //hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]
+      hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]
       daily <- (c --\ "daily" --\ "data").as[List[DailyWeather]]
-    } yield Forecast(currently, daily.take(5))
+    } yield Forecast(currently, parseHourly(hourly), daily.take(5))
   })
 
   implicit def forecastEncoder = EncodeJson[Forecast](
     (f: Forecast) => ("currently" := f.currently)
-      //->: ("hourly" := f.hourly)
+      ->: ("hourly" := f.hourly)
       ->: ("daily" := f.daily)
       ->: jEmptyObject
   )
@@ -49,14 +52,12 @@ trait WeatherTypes {
     apparentTemperature: Int
   )
 
-  /*
   case class HourlyWeather(
     time: Long,
     icon: String,
     summary: String,
     temperature: Int
   )
-  */
 
   case class DailyWeather(
     time: Long,

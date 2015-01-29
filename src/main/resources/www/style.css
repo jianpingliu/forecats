@@ -3,3 +3,68 @@
   margin: 0;
 }
 
+.container {
+  font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
+  color: #312B27;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+header { margin: 5% 0 0 0; }
+footer { margin: 10% 0 5% 0; }
+.inset { padding: 0 2%; } 
+
+.footer {
+  margin: 10% auto 5% auto;
+}
+
+input { font-family: inherit; }
+
+.text-center { text-align: center; }
+.pull-top {
+  vertical-align: top;
+}
+
+.text-small { font-size: 1.25em; }
+.text-medium { font-size: 2em; }
+.text-large {
+  font-size: 5em;
+  line-height: 0.95em;
+}
+
+.list { list-style: none; }
+ul.list-inline > li {
+  display: inline-block;
+  padding: 0.666em;
+}
+
+/*
+ul.list-inline > li:not(:first-of-type) {
+  border-left: 2pt solid #312B27;
+}
+*/
+
+.faded { opacity: 0.4; }
+.stretch {
+  width: 100%;
+  height: auto;
+}
+
+a,
+.bright {
+  color: #DE1717;
+  text-decoration: none;
+}
+
+/* FONTS: */
+.clear-day {}
+.clear-night {}
+.rain {}
+.snow {}
+.sleet {}
+.wind {}
+.fog {}
+.cloudy {}
+.partly-cloudy-day {}
+.partly-cloudy-night {}
+

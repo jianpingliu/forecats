@@ -1,37 +1,91 @@
 <!DOCTYPE html>
 <html lang='en' ng-app='forecats'>
 <head>
-  
-  <meta charset='utf-8'>
+
   <title>Forecats</title>
-  <link rel='stylesheet' type='text/css' href='style.css'>
-  <script src='//ajax.googleapis.com/ajax/libs/angularjs/1.3.4/angular.min.js'></script>
+  <meta name='viewport' content='width=device-width,initial-scale=1'>
+  <meta charset='utf-8'>
+  
+  <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet" type="text/css">
+  <link href='style.css' rel='stylesheet' type='text/css'>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.10/angular-route.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
 
 </head>
 <body>
-
-  <div class='container'>
-    <header>Forecats</header>
-  </div>
-  <div class='container cat-container' ng-controller='catControl'>
-    <img ng-if='id && fallback' ng-src='//i.imgur.com/{{id}}.gif' width='100%' height='auto'>
-    <video ng-if='id && !fallback' width='100%' height='auto' autoplay loop -webkit-playsinline>
-      <source type='video/mp4' ng-src='//i.imgur.com/{{id}}.mp4'>
-      <source type='video/webm' ng-src='//i.imgur.com/{{id}}.webm'>
-    </video>
-  </div>
-  <div class='container' ng-controller='locationControl'>
-    <input type='text' placeholder='Enter a location' ng-model='query'>
-    <button ng-click='search()'>search</button>
-  </div>
-  <div class='container weather-container' ng-controller='weatherControl' ng-show='forecast'>
-    Weather: {{ forecast }}
-  </div>
-  <div class='container' ng-controller='creditsControl'>
-    <footer>powered by <a href='http://imgur.com/i/{{ catId }}'>Imgur and Forecast</footer>
-  </div>
   
-  <script src='forecats.js'></script>
+  <div class='container'>
+    <header class='inset bright text-large'>Forecats</header>
+
+    <!-- cats: -->
+    <div ng-controller='catControl'>
+      <img class='stretch' ng-show='id' ng-src='//i.imgur.com/{{ id }}.gif'>
+    </div>
+    
+    <!-- search: -->
+    <div class='text-center' ng-controller='searchControl'>
+      <div><input type='text' ng-model='query'></div>
+      <div><span ng-click='handleSearch()'>Search</span></div>
+    </div>
+
+    <!-- weather: -->
+    <div class='inset' ng-controller='weatherControl' ng-show='forecast'>
+      <!-- current weather: -->
+      <div class='text-medium'>Currently...</div>
+      <ul class='inset list list-inline'>
+        <li class='pull-top text-center'>
+          <div>
+            <canvas skycon='currently.icon'></canvas>
+          </div>
+          <div class='text-small'>{{ forecast.currently.summary | lowercase }}</li>
+        </li>
+        <li class='pull-top'>
+          <div class='text-large text-center'>{{ forecast.currently.temperature }}</div>
+          <div class='text-small'>Feels like {{ forecast.currently.apparentTemperature }}</div>
+          <div class='text-small'>High {{ forecast.daily[0].temperatureMax }}</div>
+          <div class='text-small'>Low {{ forecast.daily[0].temperatureMin }}</div>
+        </li>
+      </ul>
+
+      <!-- hourly/daily weather: -->
+      <div class='text-medium' ng-click='toggleHourly()'>
+        <span ng-class='{faded: !showHourly}'>Hourly</span>
+        <span ng-class='{faded: showHourly}'>Daily</span>
+      </div>
+      <ul class='inset list list-inline' ng-show='showHourly'>
+        <li class='text-center' ng-repeat='hour in forecast.hourly'>
+          <div class='text-small'>{{ hour.time * 1000 | date : 'h a' }}</div>
+          <div>
+            <canvas skycon='hour.icon' width='64' height='64'></canvas>
+          </div>
+          <div class='text-small'>{{ hour.temperature }}</div>
+        </li>
+      </ul>
+      <ul class='inset list list-inline' ng-hide='showHourly'>
+        <li class='text-center' ng-repeat='day in forecast.daily'>
+          <div class='text-small'>{{ day.time * 1000 | date: 'EEE' }}</div>
+          <div>
+            <canvas skycon='day.icon' width='64' height='64'></canvas>
+          </div>
+          <div class='text-small'>
+            <span class='faded'>{{ day.temperatureMin }} &ndash;</span>
+            {{ day.temperatureMax }}
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- credits: -->
+    <footer class='text-center text-small' ng-controller='creditsControl' ng-show='imgurHref && forecastHref'>
+      powered by <a ng-href='{{ imgurHref }}'>Imgur</a> and <a ng-href='{{ forecastHref }}'>Forecast</a>
+
+    </footer>
+  </div>
+
+  <script type='text/javascript' src='app.js'></script>
 
 </body>
 </html>
+

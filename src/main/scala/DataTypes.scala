@@ -12,10 +12,31 @@ object DataTypes extends WeatherTypes {
     daily: List[DailyWeather]
   )
 
-  implicit def currentWeatherCodec = casecodec4(CurrentWeather.apply, CurrentWeather.unapply)("icon", "summary", "temperature", "apparentTemperature")
-  implicit def dailyWeatherCodec = casecodec7(DailyWeather.apply, DailyWeather.unapply)("time", "icon", "summary", "temperatureMin", "temperatureMinTime", "temperatureMax", "temperatureMaxTime")
-  implicit def hourlyWeatherCodec = casecodec4(HourlyWeather.apply, HourlyWeather.unapply)("time", "icon", "summary", "temperature")
+  implicit def currentWeatherCodec =
+    casecodec4(CurrentWeather.apply, CurrentWeather.unapply)(
+      "icon",
+      "summary",
+      "temperature",
+      "apparentTemperature"
+    )
 
+  implicit def dailyWeatherCodec =
+    casecodec6(DailyWeather.apply, DailyWeather.unapply)(
+      "time",
+      "icon",
+      "temperatureMin",
+      "temperatureMinTime",
+      "temperatureMax",
+      "temperatureMaxTime"
+    )
+
+  implicit def hourlyWeatherCodec =
+    casecodec3(HourlyWeather.apply, HourlyWeather.unapply)(
+      "time",
+      "icon",
+      "temperature"
+    )
+  
   def parseHourly(xs: List[HourlyWeather]) =
     xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
 
@@ -55,14 +76,12 @@ trait WeatherTypes {
   case class HourlyWeather(
     time: Long,
     icon: String,
-    summary: String,
     temperature: Int
   )
 
   case class DailyWeather(
     time: Long,
     icon: String,
-    summary: String,
     temperatureMin: Int,
     temperatureMinTime: Long,
     temperatureMax: Int,

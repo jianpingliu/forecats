@@ -43,7 +43,7 @@ trait ForecatsService extends HttpService {
 
   def weatherRequest(implicit weatherUtil: WeatherLookup) =
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
-      validate(validCoordinates(lat, lng), s"Invalid coordinates") {
+      validate(validCoordinates(lat, lng), "Invalid coordinates") {
         onComplete(weatherUtil.getWeather(lat, lng)) {
           case Success(forecast) => respondWithMediaType(JSON) {
             complete(forecast.asJson.toString)

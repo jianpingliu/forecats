@@ -4,31 +4,53 @@
 }
 
 .container {
-  font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
   color: #312B27;
+  color: #231f20;
   max-width: 600px;
   margin: 0 auto;
 }
 
-header { margin: 5% 0 0 0; }
-footer { margin: 10% 0 5% 0; }
+.container,
+input[type=text] {
+  font-family: 'Avenir Next Condensed', 'PT Sans Narrow', sans-serif;
+}
+
+input[type=text] {
+  outline: 0;
+  border: 0;
+}
+
+.search {
+  background-color: black;
+}
+
 .inset { padding: 0 2%; } 
 
-.footer {
-  margin: 10% auto 5% auto;
-}
+header { margin-top: 2%; }
+header.inset { padding: 2%; }
 
-input { font-family: inherit; }
+.weather-container { margin-bottom: 25%; }
+footer { margin: 5% 0 0 0; }
+footer > .inset {
+  padding: 2%;
+}
 
 .text-center { text-align: center; }
-.pull-top {
-  vertical-align: top;
-}
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.text-cc { font-family: "Andale Mono", monospace; }
 
-.text-small { font-size: 1.25em; }
+.pull-top { vertical-align: top; }
+.pull-middle { vertical-align: middle; }
+
+.pull-left { float: left; }
+.pull-right { float: right; }
+
+.text-tiny { font-size: 1.25em; }
+.text-small { font-size: 1.5em; }
 .text-medium { font-size: 2em; }
 .text-large {
-  font-size: 5em;
+  font-size: 4em;
   line-height: 0.95em;
 }
 
@@ -38,33 +60,47 @@ ul.list-inline > li {
   padding: 0.666em;
 }
 
-/*
-ul.list-inline > li:not(:first-of-type) {
-  border-left: 2pt solid #312B27;
+.table {
+  display: table;
 }
-*/
+.table-cell { display: table-cell; }
+.tc-50 { width: 50%; }
+.tc-100 { width: 100%; }
 
-.faded { opacity: 0.4; }
+.toggle {
+  padding: 0.125em 0.25em;
+  border: 0;
+  opacity: 0.4;
+
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.toggle,
+.faded {
+  opacity: 0.4;
+}
+
+.toggle.active {
+  opacity: 1; 
+}
+
+.text-medium > .active {
+  border-bottom: 2pt solid #312B27;
+}
+
 .stretch {
   width: 100%;
   height: auto;
 }
 
+a { text-decoration: none; }
+
 a,
-.bright {
+.bright,
+.faded {
+  color: #2d7af5;
   color: #DE1717;
-  text-decoration: none;
 }
-
-/* FONTS: */
-.clear-day {}
-.clear-night {}
-.rain {}
-.snow {}
-.sleet {}
-.wind {}
-.fog {}
-.cloudy {}
-.partly-cloudy-day {}
-.partly-cloudy-night {}
-

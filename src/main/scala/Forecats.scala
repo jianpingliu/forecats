@@ -10,6 +10,8 @@ import spray.http.MediaTypes.{`application/json` => JSON}
 import spray.http.StatusCodes
 import spray.http.HttpHeaders.RawHeader
 
+import DataTypes.Forecast
+
 class ForecatsActor(config: Config)(implicit system: ActorSystem) 
   extends Actor
   with ActorLogging
@@ -23,18 +25,14 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
 
   def receive = runRoute(
     get {
-      respondWithHeader(RawHeader("Access-Control-Allow-Origin", "*")) {
-        weatherRequest ~
-        catRequest
-      }
+      weatherRequest ~
+      catRequest
     }
   )
 }
 
 trait ForecatsService extends HttpService {
-
   import scala.concurrent.ExecutionContext.Implicits.global
-  import DataTypes.Forecast
 
   def log: LoggingAdapter
   
@@ -49,7 +47,7 @@ trait ForecatsService extends HttpService {
             complete(forecast.asJson.toString)
           }
           case Failure(ex) =>
-            log error s"failed to getWeather for coordinates ($lat, $lng): ${ex.getMessage}"
+            log error s"Failed to getWeather for coordinates ($lat, $lng): ${ex.getMessage}"
             complete(StatusCodes.InternalServerError)
         }
       }
@@ -60,7 +58,7 @@ trait ForecatsService extends HttpService {
       onComplete(catUtil.getRandom) {
         case Success(cat) => complete(cat)
         case Failure(ex) =>
-          log error s"random cat query failed: ${ex.getMessage}"
+          log error s"Random cat query failed: ${ex.getMessage}"
           complete(StatusCodes.NotFound)
       }
     }

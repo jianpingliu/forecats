@@ -33,9 +33,6 @@ object DataTypes extends WeatherTypes {
       "temperature"
     )
   
-  def parseHourly(xs: List[HourlyWeather]) =
-    xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
-  
   case class Forecast(
     currently: CurrentWeather,
     hourly: List[HourlyWeather],
@@ -43,6 +40,9 @@ object DataTypes extends WeatherTypes {
   )
 
   implicit def forecastDecoder = DecodeJson[Forecast](c => {
+    def parseHourly(xs: List[HourlyWeather]) =
+      xs.zipWithIndex.filter(_._2 % 4 == 0).map(_._1).take(5)
+
     for {
       currently <- (c --\ "currently").as[CurrentWeather]
       hourly <- (c --\ "hourly" --\ "data").as[List[HourlyWeather]]

@@ -5,7 +5,6 @@
 
 .container {
   color: #312B27;
-  color: #231f20;
   max-width: 550px;
   min-height: 100%;
   margin: 0 auto;
@@ -17,11 +16,11 @@ input[type=text] {
 }
 
 header {
-  margin: 2% 2% 0 2%;
+  margin: 2% 2% 1% 2%;
   line-height: 0.95em;
 }
 
-.cat-container { background-color: #fbf8fb; }
+.cat-container { background-color: #E0DFDD; }
 
 .cat-container img,
 .cat-container video {
@@ -43,7 +42,7 @@ header {
 }
 
 .search-container .table {
-  border: 2pt solid #231f20;  
+  border: 2pt solid #312B27;  
   border-radius: 2em;
   padding: 0 0.5em;
 }
@@ -56,7 +55,7 @@ input[type=text] {
   outline: 0;
   font-size: inherit;
   border: 0;
-  color: #231f20;
+  color: #312B27;
   background-color: rgba(0,0,0,0);
   text-overflow: ellipsis;
 }

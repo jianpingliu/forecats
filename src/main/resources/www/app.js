@@ -187,7 +187,7 @@
   }
 
   function skycon() {
-    var skycons = new Skycons({ color: '#231f20', resizeClear: true });
+    var skycons = new Skycons({ color: '#312B27', resizeClear: true });
     skycons.play();
 
     return {

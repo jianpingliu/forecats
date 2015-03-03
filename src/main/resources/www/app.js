@@ -1,40 +1,34 @@
-(function() {
-  angular
-    .module('forecats', [])
-    .config(function($sceDelegateProvider) {
-      // whitelist i.imgur.com to use ng-src for videos
-      $sceDelegateProvider.resourceUrlWhitelist([
-        'self',
-        'http://i.imgur.com/**'
-      ]);
-    })
+(function Forecats() {
 
-    .constant('fcEvents', {
-      // TODO: write better event names..
-      updateCoordinates: 'COORDS',
-      updateLocation: 'LOC',
-      updateCatID: 'CAT'
-    })
-    .constant('features', {
-      canPlayType: (function() {
-        var v = document.createElement('video');
-        return v.canPlayType && {
-          webm: !!(v.canPlayType('video/webm')),
-          mp4: !!(v.canPlayType('video/mp4'))
-        };
-      })(),
-      geolocation: navigator && 'geolocation' in navigator, 
-      storage: (function() {
-        try {
-          localStorage.setItem('forecats', 'forecats');
-          localStorage.getItem('forecats');
-          localStorage.removeItem('forecats');
-        } catch(e) { return false; }
-        
-        return true;
-      })(),
-      touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints)
-    })
+  var features = {
+        canPlayType: (function() {
+          var v = document.createElement('video');
+          return {
+            webm: v.canPlayType && !!(v.canPlayType('video/webm')),
+            mp4: v.canPlayType && !!(v.canPlayType('video/mp4'))
+          };
+        }()),
+        geolocation: navigator && 'geolocation' in navigator,
+        storage: (function() {
+          try {
+            localStorage.setItem('forecats', 'forecats');
+            localStorage.removeItem('forecats');
+            return true;
+          } catch(e) { return false; }
+        })(),
+        touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints)
+      },
+      fcEvents = {
+        updateCoordinates: 'COORDS',
+        updateLocation: 'LOC',
+        updateCatID: 'CAT'
+      };
+
+  angular.module('forecats', [])
+
+    .config(imgurWhitelist)
+    .constant('fcEvents', fcEvents)
+    .constant('features', features)
 
     .service('weatherUtil', weatherUtil)
     .service('catUtil', catUtil)
@@ -47,18 +41,18 @@
     .controller('creditsControl', creditsController)
 
     .directive('skycon', skycon) 
-
-    .filter('hour', hourFilter)
     .filter('temp', tempFilter)
-
     .run(init);
 
+  // whitelist i.imgur.com to use ng-src for videos
+  function imgurWhitelist($sceDelegateProvider) {
+    $sceDelegateProvider.resourceUrlWhitelist(['self', 'http://i.imgur.com/**']);
+  }
 
   function weatherUtil($http) {
     var weatherUtil = {
       fromCoordinates: function(lat, lng) {
-        return $http
-          .get('http://logitank.net/weather/' + [lat,lng].join(','))
+        return $http.get('http://logitank.net/weather/' + [lat,lng].join(','))
           .then(function(res) { return res.data; })
       }
     };
@@ -72,7 +66,7 @@
         return $http
           .get('http://logitank.net/cats/random')
           .then(function(res) {
-            $rootScope.$emit(fcEvents.updateCatID, res.data); 
+            $rootScope.$emit(fcEvents.updateCatID, res.data);
           });
       }
     };
@@ -84,6 +78,7 @@
     var g = new google.maps.Geocoder(),
         trimCoord = function(x) { return Math.floor(x*10e5) / 10e5; },
         geoUtil = {
+          trimCoord: trimCoord,
           fromQuery: function(query) {
             var handler = function(xs) {
                   if(!xs.length) return;
@@ -96,7 +91,7 @@
                   $rootScope.$emit(fcEvents.updateLocation, loc);
                   storageUtil.byCoordinates(lat, lng).setLocation(loc);
                 };
-            
+
             g.geocode({ address: query }, handler);
           },
           fromCoordinates: function(lat, lng) {
@@ -116,7 +111,7 @@
             }
           }
         };
-      
+
     return geoUtil;
   }
 
@@ -135,23 +130,21 @@
         },
         setItem = function(storage, k, v) {
           if(!features.storage) return;
-          
+
           storage.setItem(k, JSON.stringify(v));
         },
         preferences = (function() {
-            var getPrefs = getItem.bind(undefined, localStorage, 'preferences'), 
-                setPrefs = function(v) {
-                  setItem(localStorage, 'preferences', v);
-                };
+            var getPrefs = getItem.bind(undefined, localStorage, 'preferences'),
+                setPrefs = setItem.bind(undefined, localStorage, 'preferences');
 
             return {
               get: function(k) {
                 var parsed = getPrefs() || {};
-                return parsed[k];
+                return parsed[k] || null;
               },
               set: function(k, v) {
                 var parsed = getPrefs() || {};
-                parsed[k] = v; 
+                parsed[k] = v;
                 setPrefs(parsed);
               }
             };
@@ -159,9 +152,7 @@
         byCoordinates = function(lat, lng) {
           var key = [lat, lng].join(','),
               getCoords = getItem.bind(undefined, sessionStorage, key),
-              setCoords = function(v) {
-                setItem(sessionStorage, key, v);
-              },
+              setCoords = setItem.bind(undefined, sessionStorage, key),
               fromCoords = function(k) {
                 var parsed = getCoords() || {};
                 return parsed[k];
@@ -174,14 +165,9 @@
 
           return {
             getWeather: fromCoords.bind(undefined, 'weather'),
-            setWeather: function(v) {
-              forCoords('weather', v);
-            },
+            setWeather: forCoords.bind(undefined, 'weather'),
             getLocation: fromCoords.bind(undefined, 'location'),
-            setLocation: function(v) {
-              console.log('set location:', v);
-              forCoords('location', v);
-            }
+            setLocation: forCoords.bind(undefined, 'location')
           };
 
         },
@@ -196,24 +182,12 @@
 
   function tempFilter() {
     return function(t, degF) {
-      // convert degF to degC
       return degF ? t : Math.floor(5*(t-32)/9);
     };
   }
 
-  function hourFilter($filter) {
-    return function(ts, time12h) {
-      // convert 12h to 24h
-      return $filter('date')(ts, time12h ? 'h a' : 'HH:00');
-    }
-  }
-
   function skycon() {
-    var skycons = new Skycons({
-      color: '#231f20',
-      resizeClear: true
-    });
-        
+    var skycons = new Skycons({ color: '#231f20', resizeClear: true });
     skycons.play();
 
     return {
@@ -222,7 +196,7 @@
       link: function(scope, elem) {
         skycons.add(elem[0], scope.skycon);
 
-        scope.$watch('skycon', function(skycon) { 
+        scope.$watch('skycon', function(skycon) {
           skycons.set(elem[0], skycon);
         });
       }
@@ -230,25 +204,15 @@
   }
 
   function weatherController($scope, $rootScope, weatherUtil, storageUtil, fcEvents) {
-    //var timePref = storageUtil.getPreference('time12h'),
-    //$scope.time12h = (timePref !== null ? timePref : true);
-    //$scope.toggleTime = function() { $scope.time12h = !$scope.time12h; };
-    //$scope.$watch('time12h', storageUtil.setPreference.bind(undefined, 'time12h'));
-    
     $scope.showHourly = true;
-    $scope.time12h = true;
-    
+
     var tempPref = storageUtil.getPreference('degF');
     $scope.degF = (tempPref !== null ? tempPref : true);
-    $scope.toggleTemp = function() { $scope.degF = !$scope.degF; };
     $scope.$watch('degF', storageUtil.setPreference.bind(undefined, 'degF'));
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
-      delete $scope.forecast;
-      
-      if(w = storageUtil.byCoordinates(lat, lng).getWeather()) {
-        $scope.forecast = w;
-      }
+      if(cached = storageUtil.byCoordinates(lat, lng).getWeather())
+        $scope.forecast = cached;
       else weatherUtil
         .fromCoordinates(lat, lng)
         .then(function(w) {
@@ -260,48 +224,44 @@
 
   function catController($scope, $rootScope, catUtil, fcEvents, features, $http) {
     var imgur = 'http://i.imgur.com/';
+    // HACK: force a gif fallback for mobile phones, mainly because mobile safari
+    // doesn't automatically start playing our videos. would love a workaround.
+    $scope.canPlayType = !features.touch && features.canPlayType;
+
     $rootScope.$on(fcEvents.updateCatID, function(evt, id) {
+      $scope.catId = id;
       $scope.cat = {
          gif: [imgur, id, '.gif'].join(''),
          mp4: [imgur, id, '.mp4'].join(''),
         webm: [imgur, id, '.webm'].join('')
       };
-      $scope.catId = id;
     });
-
-    // force a gif fallback for mobile phones, mainly because mobile safari
-    // doesn't automatically start playing our videos.
-    $scope.canPlayType = !features.touch && features.canPlayType;
   }
 
   function creditsController($scope, $rootScope, fcEvents) {
+    $scope.imgurHref = 'http://imgur.com';
     $rootScope.$on(fcEvents.updateCatID, function(evt, id) {
       $scope.imgurHref = 'http://imgur.com/' + id;
     });
 
+    $scope.forecastHref = 'http://forecast.io';
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       $scope.forecastHref = 'http://forecast.io/#f/' + [lat, lng].join(',');
     });
-    
-    $scope.imgurHref = 'http://imgur.com';
-    $scope.forecastHref = 'http://forecast.io';
   }
 
   function searchController($scope, $rootScope, geoUtil, fcEvents) {
     $scope.query = '';
-    $scope.editLoc = false;
-
     $rootScope.$on(fcEvents.updateLocation, function(evt, loc) {
       $scope.query = loc;
     });
 
-    $scope.handleInput = function(evt) {
-      if(evt.keyCode == 13)
-        $scope.handleSearch();
-    };
-
     $scope.handleSearch = function() {
       geoUtil.fromQuery($scope.query);
+    };
+
+    $scope.handleInput = function(evt) {
+      if(evt.keyCode == 13) $scope.handleSearch();
     };
   }
   
@@ -322,22 +282,24 @@
     }
     // otherwise try to use navigator.geolocation.getCurrentPosition
     else if(features.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        function(posn) {
-          var trimCoord = function(x) { return Math.floor(x*10e5) / 10e5; },
-              lat = trimCoord(posn.coords.latitude),
-              lng = trimCoord(posn.coords.longitude);
-           
-          $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);        
-          geoUtil.fromCoordinates(lat, lng);
-        },
-        function() {},
-        { timeout: 5000 }
-      );
+      var success = function(posn) {
+            var lat = geoUtil.trimCoord(posn.coords.latitude),
+                lng = geoUtil.trimCoord(posn.coords.longitude);
+
+            $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
+            geoUtil.fromCoordinates(lat, lng);
+          },
+          failure = function(err) {
+            console.log('geolocation failed:', err);
+          },
+          options = { timeout: 5000 };
+
+      navigator.geolocation.getCurrentPosition(success,failure,options);
     }
-    
+
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
-      $location.path([lat, lng].join(','));
+      $location.path([geoUtil.trimCoord(lat), geoUtil.trimCoord(lng)].join(','));
     });
   }
+
 }());

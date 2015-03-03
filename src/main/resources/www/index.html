@@ -113,11 +113,11 @@
   <script type='text/javascript' src='app.js'></script>
 
   <script type='text/javascript'>
-    document.head.appendChild((function(anlg) {
+    document.head.appendChild((function() {
       var anlg = document.createElement('script');
       anlg.src = '//logitank.net/analogue.js' + ((document.referer && '?ref=' + encodeURIComponent(document.referer)) || '');
       return anlg;
-    }());
+    }()));
   </script>
 
 </body>

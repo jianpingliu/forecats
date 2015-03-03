@@ -253,7 +253,9 @@
   function searchController($scope, $rootScope, geoUtil, fcEvents) {
     $scope.query = '';
     $rootScope.$on(fcEvents.updateLocation, function(evt, loc) {
-      $scope.query = loc;
+      $scope.$apply(function() {
+        $scope.query = loc;
+      });
     });
 
     $scope.handleSearch = function() {

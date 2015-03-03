@@ -3,12 +3,13 @@
 <head>
 
   <title>Forecats</title>
-  <meta name='author' content='david cochran'>
+
+  <meta name='author' content='David Cochran'>
   <meta name='description' content='Weather and cat GIFs'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <meta charset='utf-8'>
   
-  <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet" type="text/css">
+  <link href='http://fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css'>
   <link href='style.css' rel='stylesheet' type='text/css'>
 
   <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js'></script>
@@ -17,36 +18,24 @@
 <body>
   
   <div class='container' ng-cloak>
-
     <header class='text-lg bright'>Forecats</header>
-
     <section class='cat-container' ng-controller='catControl' ng-show='cat'>
       <div>
-        <img width=100% height=auto ng-if='!canPlayType' ng-src='{{ cat.gif }}' ng-click='approveCurrentCat()'>
-        <video width=100% height=auto ng-if='canPlayType && canPlayType.webm' ng-src='{{ cat.webm }}' autoplay loop webkit-plays-inline></video>
-        <video width=100% height=auto ng-if='canPlayType && canPlayType.mp4 && !canPlayType.webm' ng-src='{{ cat.mp4 }}' autoplay loop webkit-plays-inline></video>
+        <img width=100% height=auto ng-if='!canPlayType.webm && !canPlayType.mp4' ng-src='{{ cat.gif }}'>
+        <video width=100% height=auto ng-if='!canPlayType.mp4 && canPlayType.webm' ng-src='{{ cat.webm }}' autoplay loop webkit-plays-inline></video>
+        <video width=100% height=auto ng-if='canPlayType.mp4' ng-src='{{ cat.mp4 }}' autoplay loop webkit-plays-inline></video>
       </div>
     </section>
-    
     <section class='search-container' ng-controller='searchControl'>
       <div class='table text-sm'>
         <input type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
         <span class='table-cell tc-1 bright mouse-pointer' ng-click='handleSearch()'>search</span>
       </div>
     </section>
-
     <section class='weather-container relative' ng-controller='weatherControl' ng-show='forecast'>
-      <div class='locale-container'>
-        <!--
-        <div ng-click='time12h = !time12h'>
-          <span class='toggle text-cc' ng-class='{active: time12h}'>12</span>
-          <span class='toggle text-cc' ng-class='{active: !time12h}'>24</span>
-        </div>
-        -->
-        <div ng-click='degF = !degF'>
-          <span class='toggle' ng-class='{active: degF}'>&deg;F</span>
-          <span class='toggle' ng-class='{active: !degF}'>&deg;C</span>
-        </div>
+      <div class='text-xs no-select locale-container' ng-click='degF = !degF'>
+        <span class='toggle' ng-class='{active: degF}'>&deg;F</span>
+        <span class='toggle' ng-class='{active: !degF}'>&deg;C</span>
       </div>
       <div class='inset table'>
         <div class='table-row'>
@@ -70,11 +59,11 @@
               </div>
               <div>
                 <span class='text-sm'>High {{ forecast.daily[0].temperatureMax | temp: degF }}</span>
-                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 | hour: time12h }}</span>
+                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 | date: 'h a' }}</span>
               </div>
               <div>
                 <span class='text-sm'>Low {{ forecast.daily[0].temperatureMin | temp: degF }}</span>
-                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 | hour: time12h }}</span>
+                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 | date: 'h a' }}</span>
               </div>
             </span>
           </div>
@@ -87,7 +76,7 @@
         </div>
         <ul class='list list-inline' ng-show='showHourly'>
           <li class='text-center' ng-repeat='hour in forecast.hourly'>
-            <div class='text-sm'>{{ hour.time * 1000 | hour: time12h }}</div>
+            <div class='text-sm'>{{ hour.time * 1000 | date: 'h a' }}</div>
             <div>
               <canvas skycon='hour.icon' width='56' height='56' title='{{ hour.summary }}'></canvas>
             </div>
@@ -112,7 +101,6 @@
         </ul>
       </div>
     </section>
-
     <footer class='text-center' ng-controller='creditsControl' ng-show='imgurHref && forecastHref'>
       <ul class='inset list text-xs'>
         <li>Powered by <a ng-href='{{ forecastHref }}'>Forecast</a> and <a ng-href='{{ imgurHref }}'>Imgur</a></li>
@@ -120,16 +108,16 @@
     </footer>
   </div>
 
-  <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.13/angular.min.js"></script>
-  <script type='text/javascript' src="https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js"></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.13/angular.min.js'></script>
+  <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/skycons/1396634940/skycons.min.js'></script>
   <script type='text/javascript' src='app.js'></script>
-  
+
   <script type='text/javascript'>
-    document.head.appendChild((function() {
-      var eugo = document.createElement('script');
-      eugo.src = '//logitank.net/analogue.js';
-      return eugo;
-    })());
+    document.head.appendChild((function(anlg) {
+      var anlg = document.createElement('script');
+      anlg.src = '//logitank.net/analogue.js' + ((document.referer && '?ref=' + encodeURIComponent(document.referer)) || '');
+      return anlg;
+    }());
   </script>
 
 </body>

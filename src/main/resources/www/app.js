@@ -221,6 +221,7 @@
         });
     });
   }
+  weatherController.$inject = ['$scope', '$rootScope', 'weatherUtil', 'storageUtil', 'fcEvents'];
 
   function catController($scope, $rootScope, catUtil, fcEvents, features, $http) {
     var imgur = 'http://i.imgur.com/';
@@ -237,6 +238,7 @@
       };
     });
   }
+  catController.$inject = ['$scope', '$rootScope', 'catUtil', 'fcEvents', 'features', '$http'];
 
   function creditsController($scope, $rootScope, fcEvents) {
     $scope.imgurHref = 'http://imgur.com';
@@ -249,6 +251,7 @@
       $scope.forecastHref = 'http://forecast.io/#f/' + [lat, lng].join(',');
     });
   }
+  creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
 
   function searchController($scope, $rootScope, geoUtil, fcEvents) {
     $scope.query = '';
@@ -266,6 +269,7 @@
       if(evt.keyCode == 13) $scope.handleSearch();
     };
   }
+  searchController.$inject = ['$scope', '$rootScope', 'geoUtil', 'fcEvents'];
   
   function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents, features) {
     console.log('Forecats. http://github.com/abtrout/forecats');
@@ -304,4 +308,10 @@
     });
   }
 
+  imgurWhitelist.$inject = ['$sceDelegateProvider'];
+  weatherUtil.$inject = ['$http'];
+  catUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
+  geoUtil.$inject = ['$rootScope', 'fcEvents', 'storageUtil'];
+  storageUtil.$inject = ['features'];
+  init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
 }());

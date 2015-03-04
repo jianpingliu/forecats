@@ -147,6 +147,17 @@ a,
 
 a { text-decoration: none; }
 
+.icon {
+  display: inline-block;
+  height: 48px;
+  width: 48px;
+  background: url('sprites.svg');
+  background-size: 200%;
+}
+
+.icon.logitank-icon { background-position: 0 0; }
+.icon.github-icon { background-position: 100% 0; }
+
 @media screen and (min-width: 500px) {
   header { margin-top: 5%; }
   .weather-container { margin-left: 5%; }

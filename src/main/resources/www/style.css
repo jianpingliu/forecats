@@ -20,8 +20,6 @@ header {
   line-height: 0.95em;
 }
 
-.cat-container { background-color: #E0DFDD; }
-
 .cat-container img,
 .cat-container video {
   width: 100%;

@@ -305,9 +305,16 @@
   }
 
   imgurWhitelist.$inject = ['$sceDelegateProvider'];
+  
   weatherUtil.$inject = ['$http'];
   catUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
   geoUtil.$inject = ['$rootScope', 'fcEvents', 'storageUtil'];
   storageUtil.$inject = ['features'];
+
+  weatherController.$inject = ['$scope', '$rootScope', 'weatherUtil', 'storageUtil', 'fcEvents'];
+  catController.$inject = ['$scope', '$rootScope', 'catUtil', 'fcEvents', 'features', '$http'];
+  creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
+  searchController.$inject = ['$scope', '$rootScope', 'geoUtil', 'fcEvents'];
+  
   init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
 }());

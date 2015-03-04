@@ -292,11 +292,11 @@
             geoUtil.fromCoordinates(lat, lng);
           },
           failure = function(err) {
-            console.log('geolocation failed:', err);
+            document.getElementById('search').focus();
           },
           options = { timeout: 5000 };
 
-      navigator.geolocation.getCurrentPosition(success,failure,options);
+      navigator.geolocation.getCurrentPosition(success, failure, options);
     }
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {

@@ -28,7 +28,7 @@
     </section>
     <section class='search-container' ng-controller='searchControl'>
       <div class='table text-sm'>
-        <input type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
+        <input id='search' type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
         <span class='table-cell tc-1 bright mouse-pointer' ng-click='handleSearch()'>search</span>
       </div>
     </section>

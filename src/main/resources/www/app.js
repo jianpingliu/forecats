@@ -40,15 +40,18 @@
     .controller('weatherControl', weatherController)
     .controller('creditsControl', creditsController)
 
-    .directive('skycon', skycon) 
+    .directive('skycon', skycon)
     .filter('temp', tempFilter)
     .run(init);
 
-  // whitelist i.imgur.com to use ng-src for videos
+
+  imgurWhitelist.$inject = ['$sceDelegateProvider'];
   function imgurWhitelist($sceDelegateProvider) {
+    // whitelist i.imgur.com to use ng-src for videos
     $sceDelegateProvider.resourceUrlWhitelist(['self', 'http://i.imgur.com/**']);
   }
 
+  weatherUtil.$inject = ['$http'];
   function weatherUtil($http) {
     var weatherUtil = {
       fromCoordinates: function(lat, lng) {
@@ -59,7 +62,8 @@
 
     return weatherUtil;
   }
-  
+
+  catUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
   function catUtil($http, $rootScope, fcEvents) {
     var catUtil = {
       random: function() {
@@ -74,6 +78,7 @@
     return catUtil;
   }
 
+  geoUtil.$inject = ['$rootScope', 'fcEvents', 'storageUtil'];
   function geoUtil($rootScope, fcEvents, storageUtil) {
     var g = new google.maps.Geocoder(),
         trimCoord = function(x) { return Math.floor(x*10e5) / 10e5; },
@@ -115,6 +120,7 @@
     return geoUtil;
   }
 
+  storageUtil.$inject = ['features'];
   function storageUtil(features) {
     var getItem = function(storage, k) {
           if(!features.storage) return;
@@ -186,6 +192,7 @@
     };
   }
 
+
   function skycon() {
     var skycons = new Skycons({ color: '#312B27', resizeClear: true });
     skycons.play();
@@ -203,6 +210,7 @@
     };
   }
 
+  weatherController.$inject = ['$scope', '$rootScope', 'weatherUtil', 'storageUtil', 'fcEvents'];
   function weatherController($scope, $rootScope, weatherUtil, storageUtil, fcEvents) {
     $scope.showHourly = true;
 
@@ -222,6 +230,7 @@
     });
   }
 
+  catController.$inject = ['$scope', '$rootScope', 'catUtil', 'fcEvents', 'features', '$http'];
   function catController($scope, $rootScope, catUtil, fcEvents, features, $http) {
     var imgur = 'http://i.imgur.com/';
     // HACK: force a gif fallback for mobile phones, mainly because mobile safari
@@ -238,6 +247,7 @@
     });
   }
 
+  creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
   function creditsController($scope, $rootScope, fcEvents) {
     $scope.imgurHref = 'http://imgur.com';
     $rootScope.$on(fcEvents.updateCatID, function(evt, id) {
@@ -250,6 +260,7 @@
     });
   }
 
+  searchController.$inject = ['$scope', '$rootScope', 'geoUtil', 'fcEvents'];
   function searchController($scope, $rootScope, geoUtil, fcEvents) {
     $scope.query = '';
     $rootScope.$on(fcEvents.updateLocation, function(evt, loc) {
@@ -266,11 +277,13 @@
       if(evt.keyCode == 13) $scope.handleSearch();
     };
   }
-  
+
+
+  init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
   function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents, features) {
     console.log('Forecats. http://github.com/abtrout/forecats');
     catUtil.random();
-    
+
     // look up weather for coordinates provided in URL hash, if they exist
     if(h = $location.path().match(/^\/[0-9,.-]*/)) {
       var coords = h[0].slice(1).split(','),
@@ -303,18 +316,4 @@
       $location.path([geoUtil.trimCoord(lat), geoUtil.trimCoord(lng)].join(','));
     });
   }
-
-  imgurWhitelist.$inject = ['$sceDelegateProvider'];
-  
-  weatherUtil.$inject = ['$http'];
-  catUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
-  geoUtil.$inject = ['$rootScope', 'fcEvents', 'storageUtil'];
-  storageUtil.$inject = ['features'];
-
-  weatherController.$inject = ['$scope', '$rootScope', 'weatherUtil', 'storageUtil', 'fcEvents'];
-  catController.$inject = ['$scope', '$rootScope', 'catUtil', 'fcEvents', 'features', '$http'];
-  creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
-  searchController.$inject = ['$scope', '$rootScope', 'geoUtil', 'fcEvents'];
-  
-  init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
 }());

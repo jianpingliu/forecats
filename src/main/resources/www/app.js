@@ -146,7 +146,7 @@
             return {
               get: function(k) {
                 var parsed = getPrefs() || {};
-                return parsed[k] || null;
+                return parsed[k];
               },
               set: function(k, v) {
                 var parsed = getPrefs() || {};

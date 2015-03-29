@@ -55,7 +55,7 @@
   function weatherUtil($http) {
     var weatherUtil = {
       fromCoordinates: function(lat, lng) {
-        return $http.get('http://logitank.net/weather/' + [lat,lng].join(','))
+        return $http.get('/weather/' + [lat,lng].join(','))
           .then(function(res) { return res.data; })
       }
     };
@@ -68,7 +68,7 @@
     var catUtil = {
       random: function() {
         return $http
-          .get('http://logitank.net/cats/random')
+          .get('/cats/random')
           .then(function(res) {
             $rootScope.$emit(fcEvents.updateCatID, res.data);
           });

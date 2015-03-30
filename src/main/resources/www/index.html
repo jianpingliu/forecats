@@ -132,11 +132,11 @@
   <script type='text/javascript' src='app.js'></script>
 
   <script type='text/javascript'>
-    document.head.appendChild((function() {
-      var anlg = document.createElement('script');
-      anlg.src = '//logitank.net/analogue.js' + ((document.referrer && '?ref=' + encodeURIComponent(document.referrer)) || '');
-      return anlg;
-    }()));
+    (function() {
+      var eugo = document.createElement('script');
+      eugo.src = '/eugo.js?v=1.0-aws' + ((document.referrer && '&ref=' + encodeURIComponent(document.referrer)) || '');
+      document.head.appendChild(eugo);
+    }());
   </script>
 
 </body>

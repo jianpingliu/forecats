@@ -212,11 +212,11 @@
 
   weatherController.$inject = ['$scope', '$rootScope', 'weatherUtil', 'storageUtil', 'fcEvents'];
   function weatherController($scope, $rootScope, weatherUtil, storageUtil, fcEvents) {
-    $scope.showHourly = true;
 
     var tempPref = storageUtil.getPreference('degF');
-    $scope.degF = (tempPref !== null ? tempPref : true);
     $scope.$watch('degF', storageUtil.setPreference.bind(undefined, 'degF'));
+    $scope.degF = (tempPref !== undefined ? tempPref : true);
+    $scope.showHourly = true;
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       if(cached = storageUtil.byCoordinates(lat, lng).getWeather())

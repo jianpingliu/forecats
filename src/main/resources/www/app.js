@@ -48,7 +48,7 @@
   imgurWhitelist.$inject = ['$sceDelegateProvider'];
   function imgurWhitelist($sceDelegateProvider) {
     // whitelist i.imgur.com to use ng-src for videos
-    $sceDelegateProvider.resourceUrlWhitelist(['self', 'http://i.imgur.com/**']);
+    $sceDelegateProvider.resourceUrlWhitelist(['self', 'https://i.imgur.com/**']);
   }
 
   weatherUtil.$inject = ['$http'];
@@ -232,7 +232,7 @@
 
   catController.$inject = ['$scope', '$rootScope', 'catUtil', 'fcEvents', 'features', '$http'];
   function catController($scope, $rootScope, catUtil, fcEvents, features, $http) {
-    var imgur = 'http://i.imgur.com/';
+    var imgur = '//i.imgur.com/';
     // HACK: force a gif fallback for mobile phones, mainly because mobile safari
     // doesn't automatically start playing our videos. would love a workaround.
     $scope.canPlayType = !features.touch && features.canPlayType;
@@ -249,14 +249,14 @@
 
   creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
   function creditsController($scope, $rootScope, fcEvents) {
-    $scope.imgurHref = 'http://imgur.com';
+    $scope.imgurHref = '//imgur.com';
     $rootScope.$on(fcEvents.updateCatID, function(evt, id) {
-      $scope.imgurHref = 'http://imgur.com/' + id;
+      $scope.imgurHref = '//imgur.com/' + id;
     });
 
-    $scope.forecastHref = 'http://forecast.io';
+    $scope.forecastHref = '//forecast.io';
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
-      $scope.forecastHref = 'http://forecast.io/#f/' + [lat, lng].join(',');
+      $scope.forecastHref = '//forecast.io/#f/' + [lat, lng].join(',');
     });
   }
 
@@ -281,7 +281,7 @@
 
   init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
   function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents, features) {
-    console.log('Forecats. http://github.com/abtrout/forecats');
+    // try to get a random cat
     catUtil.random();
 
     // look up weather for coordinates provided in URL hash, if they exist

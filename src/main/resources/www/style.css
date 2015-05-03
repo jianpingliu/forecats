@@ -84,10 +84,10 @@ input[type=text] {
 .pull-left { float: left; }
 .pull-right { float: right; }
 
-.text-xs { font-size: 1.15em; }
-.text-sm { font-size: 1.50em; }
-.text-md { font-size: 2.00em; }
-.text-lg { font-size: 3.50em; }
+.text-xs { font-size: 1.125em; }
+.text-sm { font-size: 1.250em; }
+.text-md { font-size: 1.750em; }
+.text-lg { font-size: 3.000em; }
 .text-xl { font-size: 4.20em; }
 
 .relative { position: relative }
@@ -159,4 +159,13 @@ a { text-decoration: none; }
 @media screen and (min-width: 500px) {
   header { margin-top: 5%; }
   .weather-container { margin-left: 5%; }
+}
+
+.skycon-sm {
+  width: 54px;
+  height: 54px;
+}
+.skycon-lg {
+  width: 72px;
+  height: 72px;
 }

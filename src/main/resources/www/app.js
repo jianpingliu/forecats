@@ -1,34 +1,7 @@
 (function Forecats() {
 
-  var features = {
-        canPlayType: (function() {
-          var v = document.createElement('video');
-          return {
-            webm: v.canPlayType && !!(v.canPlayType('video/webm')),
-            mp4: v.canPlayType && !!(v.canPlayType('video/mp4'))
-          };
-        }()),
-        geolocation: navigator && 'geolocation' in navigator,
-        storage: (function() {
-          try {
-            localStorage.setItem('forecats', 'forecats');
-            localStorage.removeItem('forecats');
-            return true;
-          } catch(e) { return false; }
-        })(),
-        touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints)
-      },
-      fcEvents = {
-        updateCoordinates: 'COORDS',
-        updateLocation: 'LOC',
-        updateCatID: 'CAT'
-      };
-
   angular.module('forecats', [])
-
     .config(imgurWhitelist)
-    .constant('fcEvents', fcEvents)
-    .constant('features', features)
 
     .service('weatherUtil', weatherUtil)
     .service('catUtil', catUtil)
@@ -39,6 +12,36 @@
     .controller('searchControl', searchController)
     .controller('weatherControl', weatherController)
     .controller('creditsControl', creditsController)
+
+    .constant('fcEvents', {
+      problem:            'PROBLEM',
+      noProblem:          'NO_PROBLEM',
+      searchStart:        'SEARCH_START',
+      searchFailed:       'SEARCH_FAILED',
+      geolocationFailed:  'GEOLOCATION_FAILED',
+      updateCoordinates:  'COORDS',
+      updateLocation:     'LOC',
+      updateCatID:        'CAT',
+      weatherUpdated:     'WEATHER_UPDATED'
+    })
+    .constant('features', {
+      canPlayType: (function() {
+        var v = document.createElement('video');
+        return {
+          webm: v.canPlayType && !!(v.canPlayType('video/webm')),
+          mp4: v.canPlayType && !!(v.canPlayType('video/mp4'))
+        };
+      }()),
+      geolocation: navigator && 'geolocation' in navigator,
+      storage: (function() {
+        try {
+          localStorage.setItem('forecats', 'forecats');
+          localStorage.removeItem('forecats');
+          return true;
+        } catch(e) { return false; }
+      })(),
+      touch: 'ontouchstart' in window || !!(navigator.msMaxTouchPoints)
+    })
 
     .directive('skycon', skycon)
     .filter('temp', tempFilter)

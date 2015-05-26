@@ -44,7 +44,24 @@
     <section class='search-container' ng-controller='searchControl'>
       <div class='table text-sm'>
         <input id='search' type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
-        <span class='table-cell tc-1 bright mouse-pointer' ng-click='handleSearch()'>search</span>
+        <span class='table-cell tc-1' ng-controller='feedbackControl'>
+          <span class='bright mouse-pointer' ng-click='handleSearch()'>search</span>
+          <!-- searching feedback animation should go in the searchbar! -->
+        </span>
+      </div>
+      <div class='inset' ng-controller='feedbackControl'>
+        <span ng-show='failedGeolocation'>
+          <div class='text-md'>We couldn't find your coordinates</div>
+          <div class='text-sm faded'>Try searching for your location instead. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
+        </span>
+        <span ng-show='failedSearch'>
+          <div class='text-md'>Is that really even a place?</div>
+          <div class='text-sm faded'>The search failed. Please try again. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
+        </span>
+        <span ng-show='errorMsg'>
+          <div class='text-md'>Something went wrong...</div>
+          <div class='text-sm'>Please try again. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
+        </span>
       </div>
     </section>
     <section class='weather-container relative' ng-controller='weatherControl' ng-show='forecast'>

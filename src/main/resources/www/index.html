@@ -15,6 +15,7 @@
   <meta property='og:description' content='Hourly and daily weather paired with adorable cats gifs. Powered by Forecast, Imgur, and typos.'>
 
   <link href='favicon.ico' rel='icon' type='image/x-icon'>
+  <link href='//fonts.googleapis.com/css?family=Roboto+Slab:400,300' rel='stylesheet' type='text/css'>
   <link href='//fonts.googleapis.com/css?family=PT+Sans+Narrow' rel='stylesheet' type='text/css'>
   <link href='style.css' rel='stylesheet' type='text/css'>
 
@@ -32,8 +33,8 @@
 </head>
 <body>
   
-  <div class='container' ng-cloak>
-    <header class='text-lg bright'>Forecats</header>
+  <div class='flex container' ng-cloak>
+    <header class='text-lg'><a href='https://forecats.io'>Forecats</a></header>
     <section class='cat-container' ng-controller='catControl' ng-show='cat'>
       <div>
         <img width=100% height=auto ng-if='!canPlayType.webm && !canPlayType.mp4' ng-src='{{ cat.gif }}'>
@@ -41,98 +42,100 @@
         <video width=100% height=auto ng-if='canPlayType.mp4' ng-src='{{ cat.mp4 }}' autoplay loop webkit-plays-inline></video>
       </div>
     </section>
-    <section class='search-container' ng-controller='searchControl'>
-      <div class='table text-sm'>
-        <input id='search' type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
-        <span class='table-cell tc-1' ng-controller='feedbackControl'>
-          <span class='bright mouse-pointer' ng-click='handleSearch()'>search</span>
-          <!-- searching feedback animation should go in the searchbar! -->
-        </span>
-      </div>
-      <div class='inset' ng-controller='feedbackControl'>
-        <span ng-show='failedGeolocation'>
-          <div class='text-md'>We couldn't find your coordinates</div>
-          <div class='text-sm faded'>Try searching for your location instead. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
-        </span>
-        <span ng-show='failedSearch'>
-          <div class='text-md'>Is that really even a place?</div>
-          <div class='text-sm faded'>The search failed. Please try again. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
-        </span>
-        <span ng-show='errorMsg'>
-          <div class='text-md'>Something went wrong...</div>
-          <div class='text-sm'>Please try again. <a href='javascript:;' ng-click='randomCat()'>Meow!</a></div>
-        </span>
-      </div>
-    </section>
-    <section class='weather-container relative' ng-controller='weatherControl' ng-show='forecast'>
-      <div class='text-xs no-select locale-container' ng-click='degF = !degF'>
-        <span class='toggle' ng-class='{active: degF}'>&deg;F</span>
-        <span class='toggle' ng-class='{active: !degF}'>&deg;C</span>
-      </div>
-      <div class='inset table'>
-        <div class='table-row'>
-          <div class='table-cell text-center'>
-            <canvas skycon='forecast.currently.icon' class='skycon-lg' width='144' height='144'></canvas>
+    <div class='flex-content'>
+      <section class='search-container' ng-controller='searchControl'>
+        <div class='table text-sm'>
+          <input id='search' type='text' class='table-cell tc-100' placeholder='Enter a location' ng-keypress='handleInput($event)' ng-model='query'>
+          <span class='table-cell tc-1' ng-controller='feedbackControl'>
+            <span class='bright mouse-pointer' ng-hide='activeSearch' ng-click='handleSearch()'>search</span>
+            <span class='bright mouse-pointer searching' ng-show='activeSearch' ng-click='cancelSearch()'>searching</span>
+          </span>
+        </div>
+        <div class='inset' ng-controller='feedbackControl'>
+          <span class='inset' ng-show='failedGeolocation'>
+            <div class='text-md'>We couldn't find your location</div>
+            <div class='text-sm faded'>Try searching instead</div>
+          </span>
+          <span class='inset' ng-show='failedSearch'>
+            <div class='text-md'>The search failed</div>
+            <div class='text-sm faded'>Please try again</div>
+          </span>
+          <span class='inset' ng-show='errorMsg'>
+            <div class='text-md'>Something went wrong</div>
+            <div class='text-sm faded'>It probably wasn't your fault</div>
+          </span>
+        </div>
+      </section>
+      <section class='weather-container relative' ng-controller='weatherControl' ng-show='forecast'>
+        <div class='text-xs no-select locale-container' ng-click='degF = !degF'>
+          <span class='toggle' ng-class='{active: degF}'>&deg;F</span>
+          <span class='toggle' ng-class='{active: !degF}'>&deg;C</span>
+        </div>
+        <div class='inset table'>
+          <div class='table-row'>
+            <div class='table-cell text-center'>
+              <canvas skycon='forecast.currently.icon' class='skycon-lg' width='144' height='144'></canvas>
+            </div>
+            <div class='table-cell'>
+              <span class='text-xl'>{{ forecast.currently.temperature | temp: degF }}</span>
+              <span class='text-sm faded' ng-show='degF'>&deg;F</span>
+              <span class='text-sm faded' ng-hide='degF'>&deg;C</span>
+            </div>
           </div>
-          <div class='table-cell'>
-            <span class='text-xl'>{{ forecast.currently.temperature | temp: degF }}</span>
-            <span class='text-sm faded' ng-show='degF'>&deg;F</span>
-            <span class='text-sm faded' ng-hide='degF'>&deg;C</span>
+          <div class='table-row'>
+            <div class='table-cell text-center text-sm'>
+              <span>{{ forecast.currently.summary | lowercase }}</span>
+            </div>
+            <div class='table-cell'>
+              <span class='text-left'>
+                <div>
+                  <span class='text-sm'>Feels like {{ forecast.currently.apparentTemperature | temp: degF }}</span>
+                </div>
+                <div>
+                  <span class='text-sm'>High {{ forecast.daily[0].temperatureMax | temp: degF }}</span>
+                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 | date: 'h a' }}</span>
+                </div>
+                <div>
+                  <span class='text-sm'>Low {{ forecast.daily[0].temperatureMin | temp: degF }}</span>
+                  <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 | date: 'h a' }}</span>
+                </div>
+              </span>
+            </div>
           </div>
         </div>
-        <div class='table-row'>
-          <div class='table-cell text-center text-sm'>
-            <span>{{ forecast.currently.summary | lowercase }}</span>
+        <div class='inset'>
+          <div class='inset text-md' ng-click='showHourly = !showHourly'>
+            <span class='toggle' ng-class='{active: showHourly}'>Hourly</span>
+            <span class='toggle' ng-class='{active: !showHourly}'>Daily</span>
           </div>
-          <div class='table-cell'>
-            <span class='text-left'>
+          <ul class='list list-inline' ng-show='showHourly'>
+            <li class='text-center' ng-repeat='hour in forecast.hourly'>
+              <div class='text-sm'>{{ hour.time * 1000 | date: 'h a' }}</div>
               <div>
-                <span class='text-sm'>Feels like {{ forecast.currently.apparentTemperature | temp: degF }}</span>
+                <canvas skycon='hour.icon' class='skycon-sm' width='108' height='108' title='{{ hour.summary }}'></canvas>
               </div>
               <div>
-                <span class='text-sm'>High {{ forecast.daily[0].temperatureMax | temp: degF }}</span>
-                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMaxTime * 1000 | date: 'h a' }}</span>
+                <span class='text-sm'>{{ hour.temperature | temp: degF }}</span>
+                <span class='text-xs faded' ng-show='degF' ng-if='$first'>&deg;F</span>
+                <span class='text-xs faded' ng-hide='degF' ng-if='$first'>&deg;C</span>
+              </div>
+            </li>
+          </ul>
+          <ul class='list list-inline' ng-hide='showHourly'>
+            <li class='text-center' ng-repeat='day in forecast.daily'>
+              <div class='text-sm'>{{ day.time * 1000 | date: 'EEE' | uppercase }}</div>
+              <div>
+                <canvas skycon='day.icon' class='skycon-sm' width='108' height='108' title='{{ day.summary }}'></canvas>
               </div>
               <div>
-                <span class='text-sm'>Low {{ forecast.daily[0].temperatureMin | temp: degF }}</span>
-                <span class='text-xs faded'>at {{ forecast.daily[0].temperatureMinTime * 1000 | date: 'h a' }}</span>
+                <span class='inset text-sm'>{{ day.temperatureMax | temp: degF }}</span>
+                <span class='inset faded text-xs'>{{ day.temperatureMin | temp: degF }}</span>
               </div>
-            </span>
-          </div>
+            </li>
+          </ul>
         </div>
-      </div>
-      <div class='inset'>
-        <div class='inset text-md' ng-click='showHourly = !showHourly'>
-          <span class='toggle' ng-class='{active: showHourly}'>Hourly</span>
-          <span class='toggle' ng-class='{active: !showHourly}'>Daily</span>
-        </div>
-        <ul class='list list-inline' ng-show='showHourly'>
-          <li class='text-center' ng-repeat='hour in forecast.hourly'>
-            <div class='text-sm'>{{ hour.time * 1000 | date: 'h a' }}</div>
-            <div>
-              <canvas skycon='hour.icon' class='skycon-sm' width='108' height='108' title='{{ hour.summary }}'></canvas>
-            </div>
-            <div>
-              <span class='text-sm'>{{ hour.temperature | temp: degF }}</span>
-              <span class='text-xs faded' ng-show='degF' ng-if='$first'>&deg;F</span>
-              <span class='text-xs faded' ng-hide='degF' ng-if='$first'>&deg;C</span>
-            </div>
-          </li>
-        </ul>
-        <ul class='list list-inline' ng-hide='showHourly'>
-          <li class='text-center' ng-repeat='day in forecast.daily'>
-            <div class='text-sm'>{{ day.time * 1000 | date: 'EEE' | uppercase }}</div>
-            <div>
-              <canvas skycon='day.icon' class='skycon-sm' width='108' height='108' title='{{ day.summary }}'></canvas>
-            </div>
-            <div>
-              <span class='inset text-sm'>{{ day.temperatureMax | temp: degF }}</span>
-              <span class='inset faded text-xs'>{{ day.temperatureMin | temp: degF }}</span>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </section>
+      </section>
+    </div>
     <footer class='text-center' ng-controller='creditsControl' ng-show='imgurHref && forecastHref'>
       <ul class='inset list text-xs'>
         <li>Powered by <a ng-href='{{ forecastHref }}'>Forecast</a> and <a ng-href='{{ imgurHref }}'>Imgur</a></li>

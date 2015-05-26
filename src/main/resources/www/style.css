@@ -5,7 +5,7 @@
 
 .container {
   color: #312B27;
-  max-width: 550px;
+  max-width: 575px;
   min-height: 100%;
   margin: 0 auto;
 }
@@ -168,4 +168,38 @@ a { text-decoration: none; }
 .skycon-lg {
   width: 72px;
   height: 72px;
+}
+
+.flex {
+  display: flex;
+  min-height: 99vh;
+  flex-direction: column;
+}
+.flex-content {
+  flex: 1;
+}
+
+.searching {
+  color: #312B27;
+  -webkit-animation: blend 500ms ease-in-out infinite;
+  -moz-animation: blend 500ms ease-in-out infinite;
+  -ms-animation: blend 500ms ease-in-out infinite;
+  animation: blend 500ms ease-in-out infinite;
+}
+
+@-webkit-keyframes blend {
+  from { opacity: 0;; }
+  to { opacity: 1; }
+}
+@-moz-keyframes blend {
+  from { opacity: 0;; }
+  to { opacity: 1; }
+}
+@-ms-keyframes blend {
+  from { opacity: 0;; }
+  to { opacity: 1; }
+}
+@keyframes blend {
+  from { opacity: 0;; }
+  to { opacity: 1; }
 }

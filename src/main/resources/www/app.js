@@ -9,21 +9,22 @@
     .service('storageUtil', storageUtil)
 
     .controller('catControl', catController)
+    .controller('feedbackControl', feedbackController)
     .controller('searchControl', searchController)
     .controller('weatherControl', weatherController)
     .controller('creditsControl', creditsController)
 
     .constant('fcEvents', {
-      problem:            'PROBLEM',
-      noProblem:          'NO_PROBLEM',
       searchStart:        'SEARCH_START',
       searchFailed:       'SEARCH_FAILED',
+      problem:            'PROBLEM',
       geolocationFailed:  'GEOLOCATION_FAILED',
       updateCoordinates:  'COORDS',
       updateLocation:     'LOC',
       updateCatID:        'CAT',
       weatherUpdated:     'WEATHER_UPDATED'
     })
+
     .constant('features', {
       canPlayType: (function() {
         var v = document.createElement('video');
@@ -47,19 +48,19 @@
     .filter('temp', tempFilter)
     .run(init);
 
-
   imgurWhitelist.$inject = ['$sceDelegateProvider'];
   function imgurWhitelist($sceDelegateProvider) {
     // whitelist i.imgur.com to use ng-src for videos
     $sceDelegateProvider.resourceUrlWhitelist(['self', 'https://i.imgur.com/**']);
   }
 
-  weatherUtil.$inject = ['$http'];
-  function weatherUtil($http) {
+  weatherUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
+  function weatherUtil($http, $rootScope, fcEvents) {
     var weatherUtil = {
       fromCoordinates: function(lat, lng) {
         return $http.get('/weather/' + [lat,lng].join(','))
-          .then(function(res) { return res.data; })
+          .error(function() { $rootScope.$emit(fcEvents.problem); })
+          .then(function(res) { return res.data; });
       }
     };
 
@@ -70,11 +71,9 @@
   function catUtil($http, $rootScope, fcEvents) {
     var catUtil = {
       random: function() {
-        return $http
-          .get('/cats/random')
-          .then(function(res) {
-            $rootScope.$emit(fcEvents.updateCatID, res.data);
-          });
+        return $http.get('/cats/random')
+          .error(function() { $rootScope.$emit(fcEvents.problem); })
+          .then(function(res) { $rootScope.$emit(fcEvents.updateCatID, res.data);});
       }
     };
 
@@ -89,7 +88,10 @@
           trimCoord: trimCoord,
           fromQuery: function(query) {
             var handler = function(xs) {
-                  if(!xs.length) return;
+                  if(!xs.length) {
+                    $rootScope.$emit(fcEvents.searchFailed);
+                    return;
+                  }
 
                   var lat = trimCoord(xs[0].geometry.location.lat()),
                       lng = trimCoord(xs[0].geometry.location.lng()),
@@ -195,7 +197,6 @@
     };
   }
 
-
   function skycon() {
     var skycons = new Skycons({ color: '#312B27', resizeClear: true });
     skycons.play();
@@ -205,10 +206,7 @@
       scope: { skycon: '=' },
       link: function(scope, elem) {
         skycons.add(elem[0], scope.skycon);
-
-        scope.$watch('skycon', function(skycon) {
-          skycons.set(elem[0], skycon);
-        });
+        scope.$watch('skycon', function(skycon) { skycons.set(elem[0], skycon); });
       }
     };
   }
@@ -222,14 +220,25 @@
     $scope.showHourly = true;
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
-      if(cached = storageUtil.byCoordinates(lat, lng).getWeather())
+      $rootScope.$emit(fcEvents.searchStart);
+
+      if(cached = storageUtil.byCoordinates(lat, lng).getWeather()) {
         $scope.forecast = cached;
+        $rootScope.$emit(fcEvents.weatherUpdated);
+      }
       else weatherUtil
         .fromCoordinates(lat, lng)
         .then(function(w) {
           $scope.forecast = w;
           storageUtil.byCoordinates(lat, lng).setWeather(w);
+          $rootScope.$emit(fcEvents.weatherUpdated);
         });
+    });
+
+    $rootScope.$on(fcEvents.searchStart, function() {
+      // hides the weather forecast.
+      // after a search happens, we're committing to new data anyway
+      $scope.forecast = null;
     });
   }
 
@@ -250,6 +259,51 @@
     });
   }
 
+  feedbackController.$inject = ['$scope', '$rootScope', 'fcEvents', 'catUtil'];
+  function feedbackController($scope, $rootScope, fcEvents, catUtil) {
+
+    $scope.errorMsg = false;
+    $scope.activeSearch = false;
+    $scope.failedSearch = false;
+    $scope.failedGeolocation = false;
+
+    // Feedback is cleared when we start a new search or when weather is updated
+    $rootScope.$on(fcEvents.weatherUpdated, clearFeedback); 
+
+    $rootScope.$on(fcEvents.searchStart, function() {
+      clearFeedback();
+      $scope.activeSearch = true;
+    });
+
+    // The following two events are triggered by vanilla javascript
+    // events, so need to be wrapped in $scope.$apply for binding updates
+    $rootScope.$on(fcEvents.geolocationFailed, function() {
+      $scope.$apply(function() {
+        clearFeedback();
+        $scope.failedGeolocation = true;
+      });
+    });
+
+    $rootScope.$on(fcEvents.searchFailed, function() { 
+      $scope.$apply(function() {
+        clearFeedback();
+        $scope.failedSearch = true;
+      });
+    });
+
+    $rootScope.$on(fcEvents.problem, function() { 
+      clearFeedback();
+      $scope.errorMsg = true;
+    });
+
+    function clearFeedback() {
+      $scope.errorMsg = false;
+      $scope.activeSearch = false;
+      $scope.failedSearch = false;
+      $scope.failedGeolocation = false;
+    }
+  }
+
   creditsController.$inject = ['$scope', '$rootScope', 'fcEvents'];
   function creditsController($scope, $rootScope, fcEvents) {
     $scope.imgurHref = '//imgur.com';
@@ -263,16 +317,16 @@
     });
   }
 
-  searchController.$inject = ['$scope', '$rootScope', 'geoUtil', 'fcEvents'];
-  function searchController($scope, $rootScope, geoUtil, fcEvents) {
+  searchController.$inject = ['$scope', '$rootScope', 'catUtil', 'geoUtil', 'fcEvents'];
+  function searchController($scope, $rootScope, catUtil, geoUtil, fcEvents) {
     $scope.query = '';
+
     $rootScope.$on(fcEvents.updateLocation, function(evt, loc) {
-      $scope.$apply(function() {
-        $scope.query = loc;
-      });
+      $scope.$apply(function() { $scope.query = loc; });
     });
 
     $scope.handleSearch = function() {
+      $rootScope.$emit(fcEvents.searchStart);
       geoUtil.fromQuery($scope.query);
     };
 
@@ -281,15 +335,11 @@
     };
   }
 
-
   init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
   function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents, features) {
-    // try to get a random cat
-    catUtil.random();
 
-    // look up weather for coordinates provided in URL hash, if they exist
-    if(h = $location.path().match(/^\/[0-9,.-]*/)) {
-      var coords = h[0].slice(1).split(','),
+    if(hash = $location.path().match(/^\/[0-9,.-]*/)) {
+      var coords = hash[0].slice(1).split(','),
           lat = coords[0],
           lng = coords[1];
 
@@ -298,7 +348,6 @@
         geoUtil.fromCoordinates(lat, lng);
       });
     }
-    // otherwise try to use navigator.geolocation.getCurrentPosition
     else if(features.geolocation) {
       var success = function(posn) {
             var lat = geoUtil.trimCoord(posn.coords.latitude),
@@ -308,6 +357,7 @@
             geoUtil.fromCoordinates(lat, lng);
           },
           failure = function(err) {
+            $rootScope.$emit(fcEvents.geolocationFailed);
             document.getElementById('search').focus();
           },
           options = { timeout: 5000 };
@@ -322,5 +372,7 @@
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       $location.path([geoUtil.trimCoord(lat), geoUtil.trimCoord(lng)].join(','));
     });
+
+    catUtil.random();
   }
 }());

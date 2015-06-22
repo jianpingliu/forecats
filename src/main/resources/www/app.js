@@ -363,7 +363,7 @@
             $rootScope.$emit(fcEvents.geolocationFailed);
             document.getElementById('search').focus();
           },
-          options = { timeout: 3000 };
+          options = { timeout: 4000 };
 
       // wrap geolocation in setTimeout to avoid safari bug
       // see: http://stackoverflow.com/questions/27150465/geolocation-api-in-safari-8-and-7-1-keeps-asking-permission

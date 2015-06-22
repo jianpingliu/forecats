@@ -28,6 +28,15 @@
 
     ga('create', 'UA-60295948-1', 'auto');
     ga('send', 'pageview');
+
+    (function() {
+      var eugo = document.createElement('script'),
+          ref = document.referrer;
+
+      eugo.src = '/eugo.js?' + ['ref', encodeURIComponent(ref)].join('=');
+      eugo.async = 'true';
+      document.head.appendChild(eugo);
+    }());
   </script>
 
 </head>

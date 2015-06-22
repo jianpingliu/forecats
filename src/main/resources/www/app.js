@@ -368,6 +368,7 @@
       // wrap geolocation in setTimeout to avoid safari bug
       // see: http://stackoverflow.com/questions/27150465/geolocation-api-in-safari-8-and-7-1-keeps-asking-permission
       setTimeout(function() {
+        $rootScope.$emit(fcEvents.searchStart);
         navigator.geolocation.getCurrentPosition(success, failure, options);
       }, 50);
     }

@@ -199,14 +199,17 @@
 
   function skycon() {
     var skycons = new Skycons({ color: '#312B27', resizeClear: true });
-    skycons.play();
 
     return {
       restrict: 'EA',
       scope: { skycon: '=' },
       link: function(scope, elem) {
         skycons.add(elem[0], scope.skycon);
-        scope.$watch('skycon', function(skycon) { skycons.set(elem[0], skycon); });
+        scope.$watch('skycon', function(skycon) {
+          skycons.pause();
+          skycons.set(elem[0], (skycon || 'clear-day'));
+          skycons.play();
+        });
       }
     };
   }

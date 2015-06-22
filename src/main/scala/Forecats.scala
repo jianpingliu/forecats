@@ -25,10 +25,16 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
 
   def receive = runRoute(
     get {
+      healthRequest ~
       weatherRequest ~
       catRequest
     }
   )
+
+  def healthRequest =
+    path("health.html") {
+      complete(StatusCodes.OK)
+    }
 }
 
 trait ForecatsService extends HttpService {

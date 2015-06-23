@@ -18,7 +18,6 @@
       searchStart:        'SEARCH_START',
       searchFailed:       'SEARCH_FAILED',
       problem:            'PROBLEM',
-      geolocationFailed:  'GEOLOCATION_FAILED',
       updateCoordinates:  'COORDS',
       updateLocation:     'LOC',
       updateCatID:        'CAT',
@@ -33,7 +32,6 @@
           mp4: v.canPlayType && !!(v.canPlayType('video/mp4'))
         };
       }()),
-      geolocation: navigator && 'geolocation' in navigator,
       storage: (function() {
         try {
           localStorage.setItem('forecats', 'forecats');
@@ -80,49 +78,61 @@
     return catUtil;
   }
 
-  geoUtil.$inject = ['$rootScope', 'fcEvents', 'storageUtil'];
-  function geoUtil($rootScope, fcEvents, storageUtil) {
+  geoUtil.$inject = ['$rootScope', '$http', 'fcEvents', 'storageUtil'];
+  function geoUtil($rootScope, $http, fcEvents, storageUtil) {
     var g = new google.maps.Geocoder(),
-        trimCoord = function(x) { return Math.floor(x*10e5) / 10e5; },
         geoUtil = {
           trimCoord: trimCoord,
-          fromQuery: function(query) {
-            var handler = function(xs) {
-                  if(!xs.length) {
-                    $rootScope.$emit(fcEvents.searchFailed);
-                    return;
-                  }
-
-                  var lat = trimCoord(xs[0].geometry.location.lat()),
-                      lng = trimCoord(xs[0].geometry.location.lng()),
-                      loc = xs[0].formatted_address;
-
-                  $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
-                  $rootScope.$emit(fcEvents.updateLocation, loc);
-                  storageUtil.byCoordinates(lat, lng).setLocation(loc);
-                };
-
-            g.geocode({ address: query }, handler);
-          },
-          fromCoordinates: function(lat, lng) {
-            if(l = storageUtil.byCoordinates(lat, lng).getLocation()) {
-              $rootScope.$emit(fcEvents.updateLocation, l);
-            }
-            else {
-              var latLng = new google.maps.LatLng(lat, lng),
-                  handler = function(xs) {
-                    if(!xs.length) return;
-
-                    var loc = xs[0].formatted_address;
-                    $rootScope.$emit(fcEvents.updateLocation, loc);
-                  };
-
-              g.geocode({ location: latLng }, handler);
-            }
-          }
+          fromQuery: fromQuery,
+          fromCoordinates: fromCoordinates,
+          getCoordinates: getCoordinates
         };
 
     return geoUtil;
+
+    function trimCoord(x) {
+      return Math.floor(x*10e5) / 10e5;
+    }
+
+    function fromQuery(query) {
+      var handler = function(xs) {
+            if(!xs.length) {
+              $rootScope.$emit(fcEvents.searchFailed);
+              return;
+            }
+
+            var lat = trimCoord(xs[0].geometry.location.lat()),
+                lng = trimCoord(xs[0].geometry.location.lng()),
+                loc = xs[0].formatted_address;
+
+            $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
+            $rootScope.$emit(fcEvents.updateLocation, loc);
+            storageUtil.byCoordinates(lat, lng).setLocation(loc);
+          };
+
+      g.geocode({ address: query }, handler);
+    }
+
+    function fromCoordinates(lat, lng) {
+      if(l = storageUtil.byCoordinates(lat, lng).getLocation()) {
+        $rootScope.$emit(fcEvents.updateLocation, l);
+      }
+      else {
+        var latLng = new google.maps.LatLng(lat, lng),
+            handler = function(xs) {
+              if(!xs.length) return;
+
+              var loc = xs[0].formatted_address;
+              $rootScope.$emit(fcEvents.updateLocation, loc);
+            };
+
+        g.geocode({ location: latLng }, handler);
+      }
+    }
+
+    function getCoordinates() {
+      return $http.get('/coordinates');
+    }
   }
 
   storageUtil.$inject = ['features'];
@@ -278,15 +288,6 @@
       $scope.activeSearch = true;
     });
 
-    // The following two events are triggered by vanilla javascript
-    // events, so need to be wrapped in $scope.$apply for binding updates
-    $rootScope.$on(fcEvents.geolocationFailed, function() {
-      $scope.$apply(function() {
-        clearFeedback();
-        $scope.failedGeolocation = true;
-      });
-    });
-
     $rootScope.$on(fcEvents.searchFailed, function() { 
       $scope.$apply(function() {
         clearFeedback();
@@ -338,8 +339,8 @@
     };
   }
 
-  init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents', 'features'];
-  function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents, features) {
+  init.$inject = ['$location', '$rootScope', '$timeout', 'catUtil', 'geoUtil', 'fcEvents'];
+  function init($location, $rootScope, $timeout, catUtil, geoUtil, fcEvents) {
 
     if(hash = $location.path().match(/^\/[0-9,.-]*/)) {
       var coords = hash[0].slice(1).split(','),
@@ -351,27 +352,11 @@
         geoUtil.fromCoordinates(lat, lng);
       });
     }
-    else if(features.geolocation) {
-      var success = function(posn) {
-            var lat = geoUtil.trimCoord(posn.coords.latitude),
-                lng = geoUtil.trimCoord(posn.coords.longitude);
-
-            $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
-            geoUtil.fromCoordinates(lat, lng);
-          },
-          failure = function(err) {
-            $rootScope.$emit(fcEvents.geolocationFailed);
-            document.getElementById('search').focus();
-          },
-          options = { timeout: 4000 };
-
-      // wrap geolocation in setTimeout to avoid safari bug
-      // see: http://stackoverflow.com/questions/27150465/geolocation-api-in-safari-8-and-7-1-keeps-asking-permission
-      setTimeout(function() {
-        $rootScope.$emit(fcEvents.searchStart);
-        navigator.geolocation.getCurrentPosition(success, failure, options);
-      }, 50);
-    }
+    else geoUtil.getCoordinates()
+      .success(function(data) {
+        $rootScope.$emit(fcEvents.updateCoordinates, data.lat, data.lng);
+        geoUtil.fromCoordinates(data.lat, data.lng);
+      });
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       $location.path([geoUtil.trimCoord(lat), geoUtil.trimCoord(lng)].join(','));
@@ -379,4 +364,5 @@
 
     catUtil.random();
   }
+
 }());

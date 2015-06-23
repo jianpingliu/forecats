@@ -1,5 +1,4 @@
 target/
 /project/project
 /src/main/resources/application.conf
-.vagrant/
-Vagrantfile
+GeoLite2-City.mmdb

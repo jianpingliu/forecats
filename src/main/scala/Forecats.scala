@@ -22,12 +22,14 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
 
   implicit val weatherUtil = new WeatherLookup(config.getConfig("forecast"))
   implicit val catUtil = new CatLookup(config.getConfig("redis"))
+  implicit val geoUtil = new GeoLookup(config.getConfig("maxmind"))
 
   def receive = runRoute(
     get {
       healthRequest ~
       weatherRequest ~
-      catRequest
+      catRequest ~
+      geoRequest
     }
   )
 
@@ -66,6 +68,18 @@ trait ForecatsService extends HttpService {
         case Failure(ex) =>
           log error s"Random cat query failed: ${ex.getMessage}"
           complete(StatusCodes.NotFound)
+      }
+    }
+
+  def geoRequest(implicit geoUtil: GeoLookup) =
+    path("coordinates") {
+      clientIP { ip =>
+        geoUtil.fromIP(ip.toString) match {
+          case Some((lat, lng)) => respondWithMediaType(JSON) {
+            complete(s"""{"lat": $lat, "lng": $lng}""")
+          }
+          case None => complete(StatusCodes.NotFound)
+        }
       }
     }
 }

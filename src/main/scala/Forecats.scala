@@ -75,10 +75,11 @@ trait ForecatsService extends HttpService {
     path("coordinates") {
       clientIP { ip =>
         geoUtil.fromIP(ip.toString) match {
-          case Some((lat, lng)) => respondWithMediaType(JSON) {
-            complete(s"""{"lat": $lat, "lng": $lng}""")
-          }
-          case None => complete(StatusCodes.NotFound)
+          case Some((lat, lng)) if lat != 38.0 && lng != -97.0 =>
+            respondWithMediaType(JSON) {
+              complete(s"""{"latitude": $lat, "longitude": $lng}""")
+            }
+          case _ => complete(StatusCodes.NotFound)
         }
       }
     }

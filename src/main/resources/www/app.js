@@ -354,9 +354,13 @@
     }
     else geoUtil.getCoordinates()
       .success(function(data) {
-        $rootScope.$emit(fcEvents.updateCoordinates, data.lat, data.lng);
-        geoUtil.fromCoordinates(data.lat, data.lng);
-      });
+        var lat = data.latitude,
+            lng = data.longitude;
+
+        $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
+        geoUtil.fromCoordinates(lat, lng);
+      })
+      .error(function() { document.getElementById('search').focus(); });
 
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       $location.path([geoUtil.trimCoord(lat), geoUtil.trimCoord(lng)].join(','));

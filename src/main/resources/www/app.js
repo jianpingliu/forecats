@@ -23,6 +23,7 @@
       updateCatID:        'CAT',
       weatherUpdated:     'WEATHER_UPDATED'
     })
+    .constant('baseUrl', '')
 
     .constant('features', {
       canPlayType: (function() {
@@ -48,15 +49,19 @@
 
   imgurWhitelist.$inject = ['$sceDelegateProvider'];
   function imgurWhitelist($sceDelegateProvider) {
-    // whitelist i.imgur.com to use ng-src for videos
-    $sceDelegateProvider.resourceUrlWhitelist(['self', 'https://i.imgur.com/**']);
+    $sceDelegateProvider.resourceUrlWhitelist([
+      'self',
+      // whitelist i.imgur.com to use ng-src for videos
+      'http://i.imgur.com/**',
+      'https://i.imgur.com/**'
+    ]);
   }
 
-  weatherUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
-  function weatherUtil($http, $rootScope, fcEvents) {
+  weatherUtil.$inject = ['$http', '$rootScope', 'fcEvents', 'baseUrl'];
+  function weatherUtil($http, $rootScope, fcEvents, baseUrl) {
     var weatherUtil = {
       fromCoordinates: function(lat, lng) {
-        return $http.get('/weather/' + [lat,lng].join(','))
+        return $http.get(baseUrl + '/weather/' + [lat,lng].join(','))
           .error(function() { $rootScope.$emit(fcEvents.problem); })
           .then(function(res) { return res.data; });
       }
@@ -65,11 +70,11 @@
     return weatherUtil;
   }
 
-  catUtil.$inject = ['$http', '$rootScope', 'fcEvents'];
-  function catUtil($http, $rootScope, fcEvents) {
+  catUtil.$inject = ['$http', '$rootScope', 'fcEvents', 'baseUrl'];
+  function catUtil($http, $rootScope, fcEvents, baseUrl) {
     var catUtil = {
       random: function() {
-        return $http.get('/cats/random')
+        return $http.get(baseUrl + '/cats/random')
           .error(function() { $rootScope.$emit(fcEvents.problem); })
           .then(function(res) { $rootScope.$emit(fcEvents.updateCatID, res.data);});
       }
@@ -78,8 +83,8 @@
     return catUtil;
   }
 
-  geoUtil.$inject = ['$rootScope', '$http', 'fcEvents', 'storageUtil'];
-  function geoUtil($rootScope, $http, fcEvents, storageUtil) {
+  geoUtil.$inject = ['$rootScope', '$http', 'fcEvents', 'storageUtil', 'baseUrl'];
+  function geoUtil($rootScope, $http, fcEvents, storageUtil, baseUrl) {
     var g = new google.maps.Geocoder(),
         geoUtil = {
           trimCoord: trimCoord,
@@ -131,7 +136,7 @@
     }
 
     function getCoordinates() {
-      return $http.get('/coordinates');
+      return $http.get(baseUrl + '/coordinates');
     }
   }
 

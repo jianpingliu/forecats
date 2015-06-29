@@ -14,6 +14,7 @@ libraryDependencies ++= {
     "com.maxmind.geoip2"  %   "geoip2"        % "2.2.0",
     "com.typesafe.akka"   %%  "akka-actor"    % "2.3.6",
     "io.spray"            %%  "spray-can"     % sprayV,
+    "io.spray"            %%  "spray-caching" % sprayV,
     "io.spray"            %%  "spray-client"  % sprayV,
     "io.spray"            %%  "spray-routing" % sprayV,
     "io.argonaut"         %%  "argonaut"      % "6.0.4",

@@ -51,9 +51,12 @@ trait ForecatsService extends HttpService {
     path("weather" / DoubleNumber ~ "," ~ DoubleNumber) { (lat, lng) =>
       validate(validCoordinates(lat, lng), "Invalid coordinates") {
         onComplete(weatherUtil.getWeather(lat, lng)) {
-          case Success(forecast) => respondWithMediaType(JSON) {
-            complete(forecast.asJson.toString)
-          }
+          case Success(forecast) =>
+            compressResponseIfRequested() {
+              respondWithMediaType(JSON) {
+                complete(forecast.asJson.toString)
+              }
+            }
           case Failure(ex) =>
             log error s"Failed to getWeather for coordinates ($lat, $lng): ${ex.getMessage}"
             complete(StatusCodes.InternalServerError)

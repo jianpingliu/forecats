@@ -326,6 +326,7 @@
     $scope.handleSearch = function() {
       $rootScope.$emit(fcEvents.searchStart);
       geoUtil.fromQuery($scope.query);
+      catUtil.random();
     };
 
     $scope.handleInput = function(evt) {

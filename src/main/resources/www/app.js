@@ -112,27 +112,21 @@
 
             $rootScope.$emit(fcEvents.updateCoordinates, lat, lng);
             $rootScope.$emit(fcEvents.updateLocation, loc);
-            //storageUtil.byCoordinates(lat, lng).setLocation(loc);
           };
 
       g.geocode({ address: query }, handler);
     }
 
     function fromCoordinates(lat, lng) {
-      //if(l = storageUtil.byCoordinates(lat, lng).getLocation()) {
-      //  $rootScope.$emit(fcEvents.updateLocation, l);
-      //}
-      //else {
-        var latLng = new google.maps.LatLng(lat, lng),
-            handler = function(xs) {
-              if(!xs.length) return;
+      var latLng = new google.maps.LatLng(lat, lng),
+          handler = function(xs) {
+            if(!xs.length) return;
 
-              var loc = xs[0].formatted_address;
-              $rootScope.$emit(fcEvents.updateLocation, loc);
-            };
+            var loc = xs[0].formatted_address;
+            $rootScope.$emit(fcEvents.updateLocation, loc);
+          };
 
-        g.geocode({ location: latLng }, handler);
-      //}
+      g.geocode({ location: latLng }, handler);
     }
 
     function getCoordinates() {
@@ -240,16 +234,10 @@
     $rootScope.$on(fcEvents.updateCoordinates, function(evt, lat, lng) {
       $rootScope.$emit(fcEvents.searchStart);
 
-      //if(cached = storageUtil.byCoordinates(lat, lng).getWeather()) {
-      //  $scope.forecast = cached;
-      //  $rootScope.$emit(fcEvents.weatherUpdated);
-      //}
-      //else
       weatherUtil
         .fromCoordinates(lat, lng)
         .then(function(w) {
           $scope.forecast = w;
-          //storageUtil.byCoordinates(lat, lng).setWeather(w);
           $rootScope.$emit(fcEvents.weatherUpdated);
         });
     });

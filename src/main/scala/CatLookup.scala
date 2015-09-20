@@ -2,31 +2,25 @@ package io.forecats
 
 import akka.actor.ActorSystem
 import com.typesafe.config.Config
-import scala.concurrent.{Future, Promise}
-import com.redis.RedisClient
+import scala.concurrent.Future
+import scala.util.Random
+import scalikejdbc._, SQLInterpolation._
 
 class CatLookup(val config: Config)(implicit system: ActorSystem) {
 
   import system.dispatcher
 
-  private val r = new RedisClient(
-    config.getString("host"),
-    config.getInt("port")
-  )
+  private val dbFile = config.getString("dbFile")
+  Class.forName("org.sqlite.JDBC")
+  ConnectionPool.singleton(s"jdbc:sqlite:$dbFile", null, null)
 
-  private val cats = config.getString("set")
-
-  def randomFromSet(set: String) = {
-    val p = Promise[String]()
-    Future {
-      r.srandmember(set) match {
-        case Some(cat) => p.success(cat)
-        case None => p.failure(new Exception(s"empty set $set"))
-      }
-    }
-
-    p.future
+  val cats: Vector[String] = DB readOnly { implicit session =>
+    sql"SELECT id FROM forecats"
+      .map(rs => rs.string("id")).list.apply()
+      .toVector
   }
 
-  def getRandom = randomFromSet(cats)
+  def getRandom: Future[String] = Future {
+    cats(Random.nextInt(cats.length))
+  }
 }

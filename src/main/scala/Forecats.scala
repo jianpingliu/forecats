@@ -21,7 +21,7 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
   implicit def executionContext = actorRefFactory.dispatcher
 
   implicit val weatherUtil = new WeatherLookup(config.getConfig("forecast"), config.getConfig("cache"))
-  implicit val catUtil = new CatLookup(config.getConfig("redis"))
+  implicit val catUtil = new CatLookup(config.getConfig("sqlite"))
   implicit val geoUtil = new GeoLookup(config.getConfig("maxmind"))
 
   def receive = runRoute(

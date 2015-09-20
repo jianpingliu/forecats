@@ -11,14 +11,15 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 libraryDependencies ++= {
   val sprayV = "1.3.2"
   Seq(
-    "com.maxmind.geoip2"  %   "geoip2"        % "2.2.0",
-    "com.typesafe.akka"   %%  "akka-actor"    % "2.3.6",
-    "io.spray"            %%  "spray-can"     % sprayV,
-    "io.spray"            %%  "spray-caching" % sprayV,
-    "io.spray"            %%  "spray-client"  % sprayV,
-    "io.spray"            %%  "spray-routing" % sprayV,
-    "io.argonaut"         %%  "argonaut"      % "6.0.4",
-    "net.debasishg"       %%  "redisclient"   % "2.13"
+    "com.maxmind.geoip2"  %   "geoip2"            % "2.2.0",
+    "com.typesafe.akka"   %%  "akka-actor"        % "2.3.6",
+    "io.spray"            %%  "spray-can"         % sprayV,
+    "io.spray"            %%  "spray-caching"     % sprayV,
+    "io.spray"            %%  "spray-client"      % sprayV,
+    "io.spray"            %%  "spray-routing"     % sprayV,
+    "io.argonaut"         %%  "argonaut"          % "6.0.4",
+    "org.scalikejdbc"     %%  "scalikejdbc"       % "2.2.8",
+    "org.xerial"          %   "sqlite-jdbc"       % "3.7.2"
   )
 }
 

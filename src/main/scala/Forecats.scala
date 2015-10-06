@@ -29,7 +29,8 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
       healthRequest ~
       weatherRequest ~
       catRequest ~
-      geoRequest
+      geoRequest ~
+      frontEndRoutes
     }
   )
 
@@ -37,6 +38,12 @@ class ForecatsActor(config: Config)(implicit system: ActorSystem)
     path("health.html") {
       complete(StatusCodes.OK)
     }
+
+  def frontEndRoutes = 
+    pathEndOrSingleSlash {
+      getFromResource("www/index.html")
+    } ~
+    getFromResourceDirectory("www")
 }
 
 trait ForecatsService extends HttpService {

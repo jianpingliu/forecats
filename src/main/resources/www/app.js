@@ -23,7 +23,7 @@
       updateCatID:        'CAT',
       weatherUpdated:     'WEATHER_UPDATED'
     })
-    .constant('baseUrl', '')
+    .constant('baseUrl', 'http://localhost:8080')
 
     .constant('features', {
       canPlayType: (function() {
